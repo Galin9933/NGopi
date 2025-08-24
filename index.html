@@ -1,0 +1,3681 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sampit - NGopi Itu Sepi yang Ramai</title><link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4a3728" />
+	<meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Sampit NGopi">
+    <link rel="apple-touch-icon" href="images/icons/icon-192x192.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;700;900&display=swap" rel="stylesheet" />
+    <style>
+        /* [MODERNISASI] TEMA DAN FONT */
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #111827; }
+        .font-brand { font-family: 'Playfair Display', serif; }
+        
+        /* [MODERNISASI] SCROLL HALUS TANPA SCROLLBAR */
+        main, .modal-content, .overflow-y-auto {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        main::-webkit-scrollbar, .modal-content::-webkit-scrollbar, .overflow-y-auto::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
+        }
+
+        /* Animasi Transisi Halaman */
+        .page { display: none; animation: fadeIn 0.5s ease-in-out; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Gaya Navigasi dan Tombol */
+        .nav-item { transition: transform 0.2s ease, color 0.2s ease; }
+        .nav-item:hover { transform: translateY(-2px); }
+        .nav-item.active i, .nav-item.active span { color: #4a3728; font-weight: 600; }
+        .nav-item i, .nav-item span { transition: color 0.2s ease-in-out; }
+        
+        /* Gaya Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 50; opacity: 0; visibility: hidden; transition: all 0.3s ease-in-out; }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-content { background-color: #ffffff; padding: 1.5rem; border-radius: 1rem; width: 90%; max-width: 400px; transform: scale(0.95); transition: all 0.3s ease-in-out; }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        
+        /* Gaya Notifikasi Toast */
+        .toast-notification { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background-color: #1f2937; color: #f9fafb; padding: 10px 20px; border-radius: 9999px; z-index: 100; border: 1px solid #374151; font-size: 14px; display: flex; align-items: center; gap: 8px; opacity: 0; transition: all 0.5s ease; pointer-events: none; }
+        .toast-notification.show { opacity: 1; bottom: 90px; }
+        
+        /* Gaya Thread Komentar & Adu Bacot */
+        .comment-thread { border-left: 2px solid #e5e7eb; }
+        .reply-form { animation: slideDown 0.3s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); max-height: 0; } to { opacity: 1; transform: translateY(0); max-height: 200px; } }
+        .mention-tag { color: #4a3728; font-weight: 600; background-color: #f0e9e4; padding: 2px 6px; border-radius: 6px;}
+        .kedai-tag { color: #374151; font-weight: 500; }
+
+        /* [MODERNISASI] Kotak Quote Keren */
+        .quote-box {
+            position: relative;
+            background-color: #111827;
+            color: #f3f4f6;
+            padding: 2.5rem;
+            text-align: center;
+            border-radius: 0.75rem;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        .quote-box::before {
+            content: '“';
+            position: absolute;
+            top: 0.5rem;
+            left: 0.75rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            font-weight: 900;
+            color: #4b5563;
+            line-height: 1;
+        }
+        .quote-box::after {
+            content: '”';
+            position: absolute;
+            bottom: -0.5rem;
+            right: 0.75rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            font-weight: 900;
+            color: #4b5563;
+            line-height: 1;
+        }
+        
+        /* Gaya Rating Bintang */
+        .star-rating .feather-star {
+            color: #d1d5db;
+            cursor: pointer;
+            transition: color 0.2s, transform 0.2s;
+        }
+        .star-rating .feather-star:hover {
+            transform: scale(1.2);
+        }
+        .star-rating .feather-star.filled,
+        .star-rating:hover .feather-star {
+            color: #f59e0b;
+        }
+        .star-rating:hover .feather-star:hover ~ .feather-star {
+            color: #d1d5db;
+        }
+        
+        /* [MODERNISASI] Section Collapsible (Panel) Lebih Smooth */
+        details summary::-webkit-details-marker { display: none; }
+        details summary { list-style: none; } /* hapus marker di firefox */
+        details[open] summary .chevron-icon { transform: rotate(180deg); }
+        details .panel-content {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+            padding: 0 1rem;
+        }
+        details[open] .panel-content {
+            max-height: 1000px; /* Atur nilai yang cukup besar */
+            padding: 1rem 1rem;
+        }
+        
+        /* Titik Notifikasi */
+        .notification-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ef4444;
+            border: 1px solid white;
+        }
+
+        /* Kartu Adu Bacot (Review) */
+        .bacot-card {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            transition: box-shadow 0.2s;
+        }
+        .bacot-card:hover {
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        .arena-bacot {
+             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d1d5db' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="global-loader" class="fixed inset-0 bg-gray-100 flex justify-center items-center z-[100]">
+        <i data-feather="loader" class="animate-spin text-gray-400 w-12 h-12"></i>
+    </div>
+
+    <div id="login-screen" class="max-w-md mx-auto min-h-screen flex-col justify-center items-center p-8 bg-gray-100 hidden">
+        <i data-feather="coffee" class="w-16 h-16 text-gray-700 mb-4"></i>
+        <h1 class="text-4xl font-brand font-black text-gray-800">Sampit NGopi</h1>
+        <p class="text-gray-500 mb-8">Sepi yang paling rame, sumpah!</p>
+        
+        <div class="w-full bg-white p-6 rounded-lg shadow-md">
+            <div id="login-form">
+                <h2 class="text-xl font-bold text-center mb-4">Login Dulu, Bos!</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" id="login-email" class="w-full bg-gray-100 border border-gray-300 p-3 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500" placeholder="email@kamu.com">
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <button id="forgot-password-btn" class="text-xs text-gray-600 hover:underline">Lupa Password? Panik gak?</button>
+                        </div>
+                        <input type="password" id="login-password" class="w-full bg-gray-100 border border-gray-300 p-3 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500" placeholder="••••••••">
+                    </div>
+                </div>
+                <p id="login-error" class="text-red-600 text-sm mt-2 text-center hidden"></p>
+                <button id="login-btn" class="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 mt-4 rounded-md transition-colors">Gaskeun!</button>
+                <p class="text-center text-sm text-gray-500 mt-4">
+                    Anak baru? <button id="show-register-form" class="font-semibold text-gray-800 hover:underline">Bikin Akun Baru, Gratis kok!</button>
+                </p>
+            </div>
+
+            <div id="register-form" class="hidden">
+                <h2 class="text-xl font-bold text-center mb-4">Daftar Akun, Kuy!</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="register-name" class="block text-sm font-medium text-gray-700 mb-1">Nama Panggilan (yang keren ya)</label>
+                        <input type="text" id="register-name" class="w-full bg-gray-100 border border-gray-300 p-3 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500" placeholder="Cth: Si Paling Kopi">
+                    </div>
+                    <div>
+                        <label for="register-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" id="register-email" class="w-full bg-gray-100 border border-gray-300 p-3 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500" placeholder="email@kamu.com">
+                    </div>
+                    <div>
+                        <label for="register-password" class="block text-sm font-medium text-gray-700 mb-1">Password (yang susah ditebak)</label>
+                        <input type="password" id="register-password" class="w-full bg-gray-100 border border-gray-300 p-3 rounded-md placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500" placeholder="Minimal 6 karakter">
+                    </div>
+                </div>
+                <p id="register-error" class="text-red-600 text-sm mt-2 text-center hidden"></p>
+                <button id="register-btn" class="w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 mt-4 rounded-md transition-colors">Daftar!</button>
+                <p class="text-center text-sm text-gray-500 mt-4">
+                    Udah jadi suhu? <button id="show-login-form" class="font-semibold text-gray-800 hover:underline">Login di sini</button>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="app-container" class="max-w-md mx-auto bg-white min-h-screen flex flex-col shadow-2xl hidden">
+        
+        <header id="main-header" class="sticky top-0 bg-white/80 backdrop-blur-sm z-20 p-4 border-b border-gray-200 flex justify-between items-center"></header>
+
+        <main class="flex-grow overflow-y-auto bg-gray-50" id="main-content">
+            <div id="page-timeline" class="page p-4 active"></div>
+            <div id="page-coffee-shop" class="page p-4"></div>
+            <div id="page-kedai-detail" class="page p-4"></div>
+            <div id="page-profile" class="page"></div>
+            <div id="page-post-detail" class="page p-4"></div>
+            <div id="page-rak-kopi" class="page p-4"></div>
+        </main>
+
+        <nav id="bottom-nav" class="sticky bottom-0 bg-white border-t border-gray-200 grid grid-cols-4 gap-2 p-2">
+            <button data-page="timeline" class="nav-item active flex flex-col items-center text-gray-500 hover:text-gray-900"><i data-feather="coffee"></i><span class="text-xs mt-1">Timeline</span></button>
+            <button data-page="coffee-shop" class="nav-item flex flex-col items-center text-gray-500 hover:text-gray-900"><i data-feather="map-pin"></i><span class="text-xs mt-1">Kedai Kopi</span></button>
+            <button data-page="rak-kopi" class="nav-item flex flex-col items-center text-gray-500 hover:text-gray-900"><i data-feather="bookmark"></i><span class="text-xs mt-1">Disimpen</span></button>
+            <button data-page="profile" class="nav-item flex flex-col items-center text-gray-500 hover:text-gray-900"><i data-feather="user"></i><span class="text-xs mt-1">Profil</span></button>
+        </nav>
+    </div>
+
+    <div id="modal" class="modal-overlay"><div id="modal-content" class="modal-content"></div></div>
+    <div id="toast" class="toast-notification"></div>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, onSnapshot, addDoc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, where, serverTimestamp, arrayUnion, arrayRemove, orderBy, writeBatch, runTransaction, increment, startAfter, limit, documentId } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Firebase Configuration ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAXBSjtfa2UHmwJmlnEZxC4XXR5lLpeqB0",
+            authDomain: "ngopi-8d880.firebaseapp.com",
+            databaseURL: "https://ngopi-8d880-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "ngopi-8d880",
+            storageBucket: "ngopi-8d880.appspot.com",
+            messagingSenderId: "180330700171",
+            appId: "1:180330700171:web:d481589549ff4f7b24238e",
+            measurementId: "G-R6SHPXEX92"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- Global State ---
+        let currentUser = null; 
+        let currentUserProfile = null;
+        let currentPageId = 'timeline';
+        let currentPageParams = {};
+        let navHistory = [];
+        let unsubscribeListeners = [];
+        let userProfilesCache = {}; 
+        let citiesCache = []; 
+        
+        // Pagination State
+        let lastVisiblePost = null;
+        let lastVisibleShop = null;
+        const PAGE_SIZE = 10;
+        
+        // --- App Initialization ---
+		window.onload = () => {
+            feather.replace();
+
+            // 1. Daftarkan Service Worker
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                  console.log('Service Worker berhasil didaftarkan:', registration);
+                })
+                .catch(error => {
+                  console.log('Pendaftaran Service Worker gagal:', error);
+                });
+            }
+
+            // 2. Pasang semua event listener setelah halaman siap
+            document.getElementById('login-btn').addEventListener('click', handleLogin);
+            document.getElementById('register-btn').addEventListener('click', handleRegister);
+            document.getElementById('show-register-form').addEventListener('click', () => toggleAuthForms(true));
+            document.getElementById('show-login-form').addEventListener('click', () => toggleAuthForms(false));
+            document.getElementById('forgot-password-btn').addEventListener('click', openPasswordResetModal);
+            setupGlobalEventListeners();
+        };
+        
+        function toggleAuthForms(showRegister) {
+            document.getElementById('login-form').classList.toggle('hidden', showRegister);
+            document.getElementById('register-form').classList.toggle('hidden', !showRegister);
+        }
+        
+        let isAuthCheckComplete = false;
+        onAuthStateChanged(auth, async (user) => {
+            if (!isAuthCheckComplete) {
+                isAuthCheckComplete = true;
+                document.getElementById('global-loader').style.display = 'none';
+            }
+
+            if (user) {
+                currentUser = user;
+                await fetchUserProfile(user);
+                if (currentUserProfile) {
+                    initializeAppLogic();
+                }
+            } else {
+                cleanupListeners();
+                currentUser = null;
+                currentUserProfile = null;
+                userProfilesCache = {};
+                document.getElementById('app-container').classList.add('hidden');
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('login-screen').style.display = 'flex';
+                toggleAuthForms(false);
+                updateLoginBranding(); // Panggil fungsi branding dinamis di sini
+            }
+        });
+
+        // --- FUNGSI BARU ---
+        async function updateLoginBranding() {
+            try {
+                const h1Element = document.querySelector('#login-screen h1');
+                if (!h1Element) return;
+
+                const citiesQuery = query(collection(db, 'cities'), orderBy('name'), limit(1));
+                const querySnapshot = await getDocs(citiesQuery);
+
+                if (!querySnapshot.empty) {
+                    const firstCityName = querySnapshot.docs[0].data().name;
+                    h1Element.textContent = `${firstCityName} NGopi`;
+                }
+            } catch (error) {
+                console.error("Gagal update branding login:", error);
+            }
+        }
+
+        async function handleSendBalanceByAdmin() {
+            const targetEmail = document.getElementById('target-email').value;
+            const amount = parseInt(document.getElementById('balance-amount').value);
+
+            if (!targetEmail || isNaN(amount) || amount <= 0) {
+                showToast('Email & jumlahnya isi yang bener, bos.', 'alert-circle');
+                return;
+            }
+
+            showModal(
+                'Konfirmasi Pengiriman',
+                `Yakin nih mau ngirim <b>${amount} Biji Kopi</b> ke <b>${targetEmail}</b>? Jangan salah orang!`,
+                [
+                    { text: 'Eh, Gak Jadi', class: 'bg-gray-500', action: 'close' },
+                    { 
+                        text: 'Gaskeun Kirim!', 
+                        class: 'bg-yellow-600', 
+                        action: (btn) => {
+                            // Idealnya memanggil Cloud Function yang aman di sini.
+                            // Ini adalah placeholder untuk demonstrasi.
+                            console.log(`Memanggil Cloud Function untuk mengirim ${amount} ke ${targetEmail}`);
+                            showToast('Sip, permintaan terkirim! Saldo bakal diupdate.', 'check-circle');
+                            closeModal();
+                        } 
+                    }
+                ]
+            );
+        }
+        // --- AKHIR FUNGSI BARU ---
+
+        async function handleLogin() {
+            const emailEl = document.getElementById('login-email');
+            const passwordEl = document.getElementById('login-password');
+            const errorEl = document.getElementById('login-error');
+            const button = document.getElementById('login-btn');
+            
+            const email = emailEl.value.trim();
+            const password = passwordEl.value.trim();
+
+            if (!email || !password) {
+                errorEl.textContent = 'Email sama passwordnya diisi dulu, dong.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            errorEl.classList.add('hidden');
+
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Bentar, lagi login...';
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                console.error("Login Error:", error.code);
+                errorEl.textContent = getAuthErrorMessage(error.code);
+                errorEl.classList.remove('hidden');
+                passwordEl.value = '';
+                passwordEl.focus();
+            } finally {
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        async function handleRegister() {
+            const nameEl = document.getElementById('register-name');
+            const emailEl = document.getElementById('register-email');
+            const passwordEl = document.getElementById('register-password');
+            const errorEl = document.getElementById('register-error');
+            const button = document.getElementById('register-btn');
+
+            const displayName = nameEl.value.trim();
+            const email = emailEl.value.trim();
+            const password = passwordEl.value.trim();
+
+            if (!displayName || !email || !password) {
+                errorEl.textContent = 'Semua kolom wajib diisi, jangan mager.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            if (password.length < 6) {
+                errorEl.textContent = 'Passwordnya kependekan, minimal 6 karakter ya.';
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            errorEl.classList.add('hidden');
+            
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Lagi Bikin Akun...';
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(userCredential.user, { displayName: displayName });
+                await createUserProfile(userCredential.user, displayName);
+            } catch (error) {
+                console.error("Register Error:", error.code);
+                errorEl.textContent = getAuthErrorMessage(error.code);
+                errorEl.classList.remove('hidden');
+            } finally {
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+        
+        function openPasswordResetModal() {
+            const content = `
+                <p class="text-sm text-gray-600 mb-4">
+                    Tenang, masukin emailmu di sini. Nanti dikirimin link buat benerin password.
+                </p>
+                <input type="email" id="reset-email-input" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md" placeholder="email@kamu.com">
+            `;
+            showModal('Reset Password', content, [
+                { text: 'Batal', class: 'bg-gray-500 hover:bg-gray-600', action: 'close' },
+                { text: 'Kirim Link Ajaib', class: 'bg-gray-800 hover:bg-black', action: (btn) => handlePasswordReset(btn) }
+            ]);
+        }
+
+        async function handlePasswordReset(button) {
+            const emailInput = document.getElementById('reset-email-input');
+            const email = emailInput.value.trim();
+            if (!email) {
+                showToast('Emailnya jangan kosong, dong!', 'alert-circle');
+                return;
+            }
+
+            const originalContent = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = `<i data-feather="loader" class="animate-spin mx-auto"></i>`;
+            feather.replace();
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                closeModal();
+                showToast('Link terkirim! Cek emailmu (folder spam juga ya).', 'check-circle');
+            } catch (error) {
+                console.error("Password Reset Error:", error.code);
+                showToast(getAuthErrorMessage(error.code), 'alert-circle');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalContent;
+            }
+        }
+
+        function getAuthErrorMessage(errorCode) {
+            switch (errorCode) {
+                case 'auth/invalid-email':
+                    return 'Format emailnya aneh, coba cek lagi.';
+                case 'auth/user-not-found':
+                case 'auth/wrong-password':
+                case 'auth/invalid-credential':
+                    return 'Waduh, email atau password-mu ngaco nih. Coba inget-inget lagi.';
+                case 'auth/email-already-in-use':
+                    return 'Email ini udah dipake orang lain, coba yang lain.';
+                case 'auth/weak-password':
+                    return 'Passwordnya gampang ditebak, ganti yang lebih susah.';
+                default:
+                    return 'Lagi ada gangguan, coba lagi nanti ya.';
+            }
+        }
+
+        async function createUserProfile(user, displayName) {
+            const userDocRef = doc(db, "users", user.uid);
+            try {
+                if (citiesCache.length === 0) {
+                    const citiesSnap = await getDocs(query(collection(db, 'cities'), orderBy('name')));
+                    citiesCache = citiesSnap.docs.map(doc => doc.data().name);
+                }
+                const defaultCity = citiesCache.length > 0 ? citiesCache[0] : "Nusantara";
+
+        const newUserProfile = {
+            name: displayName, 
+            avatar: '',
+            rank: 'Anak Kopi',
+            savedPosts: [],
+            isBlocked: false,
+            balance: 10,
+            bio: `Anak baru di Sampit Ngopi, salam kenal!`,
+            blockedUsers: [],
+            currentCity: defaultCity // Gunakan defaultCity yang sudah diperbaiki
+        };
+        await setDoc(userDocRef, newUserProfile);
+        return newUserProfile;
+    } catch (error) {
+        console.error("Error creating user profile:", error);
+        return null;
+    }
+}
+        
+        async function fetchUserProfile(user) {
+            const userDocRef = doc(db, "users", user.uid);
+            const userDocSnap = await getDoc(userDocRef);
+
+            if (userDocSnap.exists()) {
+                currentUserProfile = userDocSnap.data();
+            } else {
+                console.log("User profile not found, creating one...");
+                currentUserProfile = await createUserProfile(user, user.displayName); 
+                if (!currentUserProfile) {
+                    console.error("Failed to create and fetch user profile. Forcing logout.");
+                    await handleLogout();
+                }
+            }
+             userProfilesCache[user.uid] = currentUserProfile; 
+        }
+
+        async function handleLogout() {
+            await signOut(auth);
+        }
+
+        function initializeAppLogic() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-container').classList.remove('hidden');
+            listenForNotifications();
+            showPage('timeline', {}, true);
+        }
+        
+        function cleanupListeners() {
+            unsubscribeListeners.forEach(unsubscribe => unsubscribe());
+            unsubscribeListeners = [];
+        }
+
+        // --- Navigation & Event Handling ---
+        function setupGlobalEventListeners() {
+            document.getElementById('bottom-nav').addEventListener('click', (e) => {
+                const navButton = e.target.closest('.nav-item');
+                if (navButton) showPage(navButton.dataset.page);
+            });
+            
+            document.body.addEventListener('click', handleMainContentClick);
+
+            document.getElementById('modal').addEventListener('click', (e) => {
+                if (e.target.id === 'modal' || e.target.closest('.close-modal-btn')) closeModal();
+            });
+
+            document.addEventListener('click', (e) => {
+                const openMenu = document.querySelector('[id^="user-menu-"]:not(.hidden)');
+                if (openMenu && !e.target.closest('[data-action="toggle-user-menu"]') && !e.target.closest('[id^="user-menu-"]')) {
+                    openMenu.classList.add('hidden');
+                }
+            });
+
+            // [MODERNISASI] Infinite Scroll Listener
+            document.getElementById('main-content').addEventListener('scroll', (e) => {
+                const { scrollTop, scrollHeight, clientHeight } = e.target;
+                if (scrollTop + clientHeight >= scrollHeight - 300) { // Trigger 300px before end
+                    const loadMoreBtn = document.querySelector('[data-action^="load-more-"]:not(:disabled)');
+                    if (loadMoreBtn) {
+                        loadMoreBtn.disabled = true; // Prevent multiple clicks
+                        loadMoreBtn.click();
+                        setTimeout(() => { if (loadMoreBtn) loadMoreBtn.disabled = false; }, 1000); // Re-enable after a delay
+                    }
+                }
+            });
+        }
+        
+        function showPage(pageId, params = {}, forceRender = false) {
+            if (!currentUser) return;
+            
+            cleanupListeners();
+
+            const newPageIdentifier = pageId + JSON.stringify(params);
+            const currentPageIdentifier = currentPageId + JSON.stringify(currentPageParams);
+
+            if (newPageIdentifier !== currentPageIdentifier) {
+                if (navHistory.length === 0 || navHistory[navHistory.length - 1].pageId !== currentPageId || JSON.stringify(navHistory[navHistory.length - 1].params) !== JSON.stringify(currentPageParams)) {
+                    navHistory.push({ pageId: currentPageId, params: currentPageParams });
+                }
+            }
+            
+            if (newPageIdentifier === currentPageIdentifier && !forceRender) {
+                return;
+            }
+            
+            lastVisiblePost = null;
+            lastVisibleShop = null;
+
+            currentPageId = pageId;
+            currentPageParams = params;
+
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const pageElement = document.getElementById(`page-${pageId}`);
+            if(pageElement) pageElement.classList.add('active');
+            
+            renderPageContent(pageId, params);
+            
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            let mainPageId = pageId.split('-')[0];
+             if (['kedai-detail', 'post-detail'].includes(pageId)) {
+                 if (pageId === 'kedai-detail') mainPageId = 'coffee-shop';
+                 else if (pageId === 'post-detail') mainPageId = 'timeline';
+             }
+            
+            const navButton = document.querySelector(`.nav-item[data-page="${mainPageId}"]`);
+            if(navButton) navButton.classList.add('active');
+        }
+
+        function goBack() {
+            const lastPage = navHistory.pop();
+            if (lastPage) {
+                currentPageId = lastPage.pageId;
+                currentPageParams = lastPage.params;
+                showPage(lastPage.pageId, lastPage.params, true);
+            }
+        }
+
+        function renderPageContent(pageId, params) {
+            const container = document.getElementById(`page-${pageId}`);
+            if (!container) return;
+            container.innerHTML = loadingComponent();
+            
+            const renderFunctions = {
+                'timeline': () => renderTimeline(container),
+                'coffee-shop': () => renderCoffeeShop(container),
+                'profile': () => renderProfile(container, params),
+                'post-detail': () => renderPostDetail(container, params.postId),
+                'rak-kopi': () => renderRakKopi(container),
+                'kedai-detail': () => renderKedaiDetail(container, params.shopId),
+            };
+            
+            if (renderFunctions[pageId]) {
+                renderFunctions[pageId]();
+            } else {
+                container.innerHTML = emptyStateComponent('alert-circle', 'Nyasar, Bos?', 'Halaman yang dicari gak ada, mungkin lagi ngopi.');
+            }
+            
+            renderHeader();
+            feather.replace();
+        }
+
+        function renderHeader() {
+            const header = document.getElementById('main-header');
+            if (!header || !currentUserProfile) return;
+
+            // --- PERUBAHAN BRANDING DINAMIS ---
+            let pageConfig = {
+                'timeline': { 
+                    title: `Timeline ${currentUserProfile.currentCity || 'Ngopi'}`,
+                    subtitle: `Lagi online di ${currentUserProfile.currentCity || 'Nusantara'}` 
+                },
+                'coffee-shop': { 
+                    title: `Kedai Kopi ${currentUserProfile.currentCity || ''}`,
+                    subtitle: `Jelajahi area ${currentUserProfile.currentCity || 'Nusantara'}` 
+                },
+                'kedai-detail': { title: 'Lapak Adu Bacot', subtitle: 'Kasih bacotan & ratingmu di sini!' },
+                'profile': { title: 'Profil Akun', subtitle: 'Jejak nongkimu terekam di sini.' },
+                'post-detail': { title: 'Detail Postingan', subtitle: 'Ramein kolom komentarnya!' },
+                'rak-kopi': { title: 'Postingan Disimpen', subtitle: 'Kumpulan postingan favoritmu.' },
+            };
+            
+            if (currentPageId === 'profile' && currentPageParams.userId && currentPageParams.userId !== currentUser.uid) {
+                pageConfig.profile.title = 'Profil Anak Kopi';
+                pageConfig.profile.subtitle = 'Stalking jejak nongkinya, hehe.';
+            }
+
+            const { title, subtitle } = pageConfig[currentPageId] || { title: 'Sampit Ngopi', subtitle: 'Sepi yang paling rame.'};
+            const backButton = navHistory.length > 0 ? `<button data-action="go-back" class="text-gray-500 hover:text-gray-900 mr-3"><i data-feather="arrow-left"></i></button>` : '';
+            const avatarHTML = currentUserProfile.avatar 
+                ? `<img src="${currentUserProfile.avatar}" alt="Avatar" class="w-8 h-8 rounded-full object-cover bg-gray-200">`
+                : `<div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center"><i data-feather="user" class="w-5 h-5 text-gray-500"></i></div>`;
+
+            header.innerHTML = `
+                <div class="flex items-center">
+                    ${backButton}
+                    <div>
+                        <h1 class="text-2xl font-brand font-bold text-gray-800">${title}</h1>
+                        <p class="text-xs text-gray-500">${subtitle}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button data-action="open-notifications-modal" class="relative text-gray-700">
+                        <i data-feather="bell"></i>
+                    </button>
+                    <div id="user-profile-icon" class="relative text-gray-700">
+                         ${avatarHTML}
+                    </div>
+                </div>`;
+            feather.replace();
+        }
+
+        async function handleMainContentClick(e) {
+            const target = e.target.closest('[data-action]');
+            if (!target) return;
+            if (!currentUser) return;
+            
+            const { action, id, page, param, postId, parentId, userId, shopId, cost } = target.dataset;
+
+            if (currentUserProfile && currentUserProfile.isBlocked && action !== 'logout') {
+                showToast('Aksi ditolak. Akunmu lagi dibekuin.', 'slash');
+                return;
+            }
+
+            const actions = {
+                'go-back': goBack,
+                'send-post': () => createNewPost(target),
+                'toggle-like': () => toggleLike(id, target),
+                'toggle-save': () => toggleSave(id, target),
+                'add-comment': () => addComment(id, parentId, target),
+                'add-review': () => addReview(id, target),
+                'go-to-post': () => showPage('post-detail', { postId: id }),
+                'show-reply-form': () => showReplyForm(id),
+                'go-to-page': () => showPage(page || id, param ? JSON.parse(param) : {}),
+                'delete-post': () => confirmDeletePost(id),
+                'delete-comment': () => confirmDeleteComment(id, parentId),
+                'update-name': () => updateName(target),
+                'logout': handleLogout,
+                'open-add-shop-modal': openAddShopModal,
+                'add-new-shop': addNewShop,
+                'delete-shop': () => confirmDeleteShop(id),
+                'toggle-block-user': () => toggleBlockUser(userId),
+                'toggle-user-menu': () => toggleUserMenu(userId),
+                'report-user': () => openReportUserModal(userId),
+                'open-edit-bio-modal': () => openEditBioModal(),
+                'open-change-avatar-modal': openChangeAvatarModal,
+                'send-tip': () => openSendTipModal(id, target.dataset.authorId),
+                'open-tippers-modal': () => openTippersModal(postId),
+                'open-likers-modal': () => openLikersModal(postId),
+                'open-purchase-modal': openPurchaseModal,
+                'submit-purchase-request': () => submitPurchaseRequest(target),
+                'open-withdrawal-modal': openWithdrawalModal,
+                'submit-withdrawal-request': submitWithdrawalRequest,
+                'open-notifications-modal': openNotificationsModal,
+                'open-city-selection-modal': openCitySelectionModal,
+                'set-user-city': () => setUserCity(target.dataset.city),
+                'open-edit-shop-modal': () => openEditShopModal(shopId),
+                'update-shop': () => updateShop(shopId),
+                'load-more-posts': () => loadMorePosts(),
+                'load-more-shops': () => loadMoreShops(),
+                'open-promote-shop-modal': () => openPromoteShopModal(shopId),
+                'execute-bump-promotion': () => executeBumpShopPromotion(shopId, parseInt(cost), target),
+                'execute-timeline-promotion': () => executeTimelinePromotion(shopId, parseInt(cost), target),
+                'register-owner': openOwnerRequestModal,
+                'go-to-shop-website': () => showToast('Fitur ini segera hadir, sabar ya!', 'clock'),
+                'open-promotion-viewers': () => openPromotionViewersModal(id),
+                'go-to-promoted-shop': () => goToPromotedShop(target.dataset.shopId, id),
+            };
+
+            if (actions[action]) await actions[action]();
+        }
+
+        // --- FUNGSI BARU UNTUK FITUR RATING & REVIEW ---
+        function setupStarRating(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            const stars = container.querySelectorAll('.feather-star');
+
+            const setRating = (rating) => {
+                stars.forEach(star => {
+                    star.classList.toggle('filled', parseInt(star.dataset.value) <= rating);
+                });
+                container.dataset.rating = rating;
+            };
+
+            stars.forEach(star => {
+                star.addEventListener('mouseover', () => {
+                    const rating = parseInt(star.dataset.value);
+                    stars.forEach(s => s.classList.toggle('filled', parseInt(s.dataset.value) <= rating));
+                });
+
+                star.addEventListener('mouseout', () => {
+                    setRating(parseInt(container.dataset.rating));
+                });
+
+                star.addEventListener('click', () => {
+                    container.dataset.rating = star.dataset.value;
+                    setRating(parseInt(container.dataset.rating));
+                });
+            });
+        }
+
+        async function addReview(shopId, button) {
+            const ratingContainer = document.getElementById('add-review-stars');
+            const rating = parseInt(ratingContainer.dataset.rating);
+            const text = document.getElementById('review-text').value.trim();
+
+            if (rating === 0) {
+                showToast('Kasih bintang dulu, jangan pelit.', 'alert-circle');
+                return;
+            }
+            if (!text) {
+                showToast('Bacotannya jangan kosong dong, hehe.', 'alert-circle');
+                return;
+            }
+
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Mengirim...';
+
+            try {
+                const shopRef = doc(db, "coffeeShops", shopId);
+                const reviewsColRef = collection(db, "coffeeShops", shopId, 'reviews');
+
+                await addDoc(reviewsColRef, {
+                    authorId: currentUser.uid,
+                    rating: rating,
+                    text: text,
+                    createdAt: serverTimestamp()
+                });
+
+                await runTransaction(db, async (transaction) => {
+                    const shopDoc = await transaction.get(shopRef);
+                    if (!shopDoc.exists()) {
+                        throw "Kedai tidak ditemukan!";
+                    }
+                    const newReviewCount = (shopDoc.data().reviewCount || 0) + 1;
+                    const oldRatingTotal = (shopDoc.data().rating || 0) * (shopDoc.data().reviewCount || 0);
+                    const newAverageRating = (oldRatingTotal + rating) / newReviewCount;
+                    
+                    transaction.update(shopRef, {
+                        reviewCount: newReviewCount,
+                        rating: newAverageRating
+                    });
+                });
+
+                document.getElementById('review-text').value = '';
+                ratingContainer.dataset.rating = 0;
+                setupStarRating('add-review-stars');
+                showToast('Mantap, bacotanmu berhasil dikirim!', 'check-circle');
+
+            } catch (error) {
+                console.error("Error adding review:", error);
+                showToast('Yah, gagal ngirim bacotan. Coba lagi.', 'alert-circle');
+            } finally {
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        function renderReviews(shopId, shopOwnerId) {
+            const reviewsQuery = query(collection(db, "coffeeShops", shopId, 'reviews'), orderBy("createdAt", "desc"));
+            const unsubscribe = onSnapshot(reviewsQuery, async (snapshot) => {
+                const container = document.getElementById('reviews-list');
+                if (!container) return;
+
+                if (snapshot.empty) {
+                    container.innerHTML = `<p class="text-center text-sm text-gray-500 py-4">Belum ada bacotan. Jadilah yang pertama merusak kesunyian!</p>`;
+                    return;
+                }
+
+                const userIds = [...new Set(snapshot.docs.map(doc => doc.data().authorId))];
+                const userProfiles = await fetchMultipleUserProfiles(userIds);
+
+                container.innerHTML = snapshot.docs.map(doc => {
+                    const review = { id: doc.id, ...doc.data() };
+                    const author = userProfiles[review.authorId];
+                    if (!author) return '';
+                    return reviewComponent(review, author, shopOwnerId);
+                }).join('');
+                feather.replace();
+            });
+            unsubscribeListeners.push(unsubscribe);
+        }
+
+        function reviewComponent(review, author, shopOwnerId) {
+            const starsHTML = Array(5).fill(0).map((_, i) => `
+                <i data-feather="star" class="w-4 h-4 ${i < review.rating ? 'fill-current text-yellow-500' : 'text-gray-300'}"></i>
+            `).join('');
+            
+            const avatarHTML = author.avatar
+                ? `<img src="${author.avatar}" alt="${author.name}" class="w-10 h-10 rounded-full object-cover bg-gray-200">`
+                : `<div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center"><i data-feather="user" class="w-6 h-6 text-gray-500"></i></div>`;
+
+            const isOwnerResponse = review.authorId === shopOwnerId;
+            const ownerBadge = isOwnerResponse ? `<span class="ml-2 text-xs bg-blue-100 text-blue-800 font-semibold px-2 py-0.5 rounded-full">Pemilik Kedai</span>` : '';
+
+            return `
+                <div class="bacot-card flex items-start gap-4 ${isOwnerResponse ? 'bg-blue-50 border-blue-200' : ''}">
+                    ${avatarHTML}
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="font-semibold text-gray-800">${author.name}</span>
+                                ${ownerBadge}
+                            </div>
+                            <div class="flex">${starsHTML}</div>
+                        </div>
+                        <p class="text-gray-700 mt-1 text-sm">${review.text}</p>
+                        <p class="text-xs text-gray-400 mt-2">${new Date(review.createdAt?.seconds * 1000).toLocaleString('id-ID')}</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // --- PAGE RENDER FUNCTIONS ---
+        async function renderTimeline(container) {
+            container.innerHTML = `
+                <div class="relative mb-4">
+                    <input type="text" id="search-input" class="w-full bg-white border border-gray-300 p-3 pl-10 rounded-full placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500" placeholder="Cari postingan orang...">
+                    <i data-feather="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                </div>
+                <div id="timeline-content" class="space-y-4">
+                    <div id="post-creator" class="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
+                        <textarea id="post-input" class="w-full bg-transparent text-gray-800 placeholder-gray-500 focus:outline-none" rows="3" placeholder="Mau spil aib atau mau bikin Quotes? Panggung ini buat elu!"></textarea>
+                        <div class="flex justify-between items-center mt-2">
+                            <span id="char-counter" class="text-xs text-gray-400">0 / 115</span>
+                            <button data-action="send-post" class="bg-gray-800 hover:bg-black text-white font-bold py-1.5 px-5 rounded-full text-sm transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">Spill!</button>
+                        </div>
+                    </div>
+                    <div id="timeline-feed" class="space-y-4">
+                        ${loadingComponent()}
+                    </div>
+                    <div id="timeline-loader" class="text-center py-4"></div>
+                </div>
+            `;
+            
+            document.getElementById('search-input').addEventListener('keyup', filterTimeline);
+
+            const postInput = document.getElementById('post-input');
+            const charCounter = document.getElementById('char-counter');
+            postInput.addEventListener('input', () => {
+                const count = postInput.value.length;
+                charCounter.textContent = `${count} / 115`;
+                charCounter.classList.toggle('text-red-500', count > 115);
+            });
+            
+            await loadMorePosts(true);
+        }
+        
+        async function loadMorePosts(isInitial = false) {
+            const feedContainer = document.getElementById('timeline-feed');
+            const loader = document.getElementById('timeline-loader');
+            if (!feedContainer || !loader) return;
+
+            loader.innerHTML = loadingComponent();
+            feather.replace();
+
+            const city = currentUserProfile.currentCity;
+            const postsCollectionRef = collection(db, "posts");
+
+            if (city && city !== "Nusantara") {
+                if (!isInitial) {
+                    loader.innerHTML = ''; 
+                    return;
+                }
+                
+                const cityQuery = query(postsCollectionRef, where("city", "==", city));
+                const snapshot = await getDocs(cityQuery);
+                
+                feedContainer.innerHTML = '';
+
+                if (snapshot.empty) {
+                    feedContainer.innerHTML = emptyStateComponent('coffee', 'Sepi Banget...', 'Belum ada yang posting di kota ini. Jadilah yang pertama!');
+                    loader.innerHTML = '';
+                    feather.replace();
+                    return;
+                }
+
+                const postsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                postsData.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+                const userIds = new Set();
+                postsData.forEach(post => {
+                    userIds.add(post.authorId);
+                    if (post.likes) post.likes.forEach(likerId => userIds.add(likerId));
+                    if (post.tips) post.tips.forEach(tip => userIds.add(tip.tipperId));
+                    if (post.viewedBy) post.viewedBy.forEach(viewerId => userIds.add(viewerId));
+                });
+                
+                const userProfiles = await fetchMultipleUserProfiles(Array.from(userIds));
+
+                const postsHTML = postsData
+                    .map(post => {
+                        const author = userProfiles[post.authorId];
+                        if (!author || (currentUserProfile.blockedUsers && currentUserProfile.blockedUsers.includes(post.authorId))) return '';
+                        return postComponent(post, author, false, userProfiles);
+                    })
+                    .join('');
+
+                feedContainer.innerHTML = postsHTML;
+                loader.innerHTML = '<p class="text-sm text-gray-400">Udah semua postingan di kota ini.</p>';
+                feather.replace();
+
+            } else {
+                let postsQuery;
+                let baseQuery = query(postsCollectionRef, orderBy("createdAt", "desc"), limit(PAGE_SIZE));
+
+                if (lastVisiblePost && !isInitial) {
+                    postsQuery = query(baseQuery, startAfter(lastVisiblePost));
+                } else {
+                    postsQuery = baseQuery;
+                }
+
+                const snapshot = await getDocs(postsQuery);
+                
+                if (isInitial) {
+                    feedContainer.innerHTML = '';
+                }
+
+                if (snapshot.empty && isInitial) {
+                    feedContainer.innerHTML = emptyStateComponent('coffee', 'Sepi Banget...', 'Belum ada postingan. Jadilah yang pertama!');
+                    loader.innerHTML = '';
+                    feather.replace();
+                    return;
+                }
+
+                lastVisiblePost = snapshot.docs[snapshot.docs.length - 1];
+
+                const userIds = new Set();
+                const postsData = snapshot.docs.map(doc => {
+                    const post = { id: doc.id, ...doc.data() };
+                    userIds.add(post.authorId);
+                    if (post.likes) post.likes.forEach(likerId => userIds.add(likerId));
+                    if (post.tips) post.tips.forEach(tip => userIds.add(tip.tipperId));
+                    if (post.viewedBy) post.viewedBy.forEach(viewerId => userIds.add(viewerId));
+                    return post;
+                });
+                
+                const userProfiles = await fetchMultipleUserProfiles(Array.from(userIds));
+
+                const postsHTML = postsData
+                    .map(post => {
+                        const author = userProfiles[post.authorId];
+                        if (!author || (currentUserProfile.blockedUsers && currentUserProfile.blockedUsers.includes(post.authorId))) return '';
+                        return postComponent(post, author, false, userProfiles);
+                    })
+                    .join('');
+
+                feedContainer.innerHTML += postsHTML;
+
+                if (snapshot.docs.length < PAGE_SIZE) {
+                    loader.innerHTML = '<p class="text-sm text-gray-400">Udah mentok, gak ada lagi postingan.</p>';
+                } else {
+                    // [MODERNISASI] Sembunyikan tombol 'load more' untuk infinite scroll
+                    loader.innerHTML = `<button data-action="load-more-posts" class="hidden">Lagi dong...</button>`;
+                }
+                feather.replace();
+            }
+        }
+
+        async function fetchMultipleUserProfiles(userIds) {
+            const idsToFetch = userIds.filter(id => !userProfilesCache[id]);
+            if (idsToFetch.length === 0) return userProfilesCache;
+
+            const chunks = [];
+            for (let i = 0; i < idsToFetch.length; i += 30) {
+                chunks.push(idsToFetch.slice(i, i + 30));
+            }
+
+            for (const chunk of chunks) {
+                const userDocs = await getDocs(query(collection(db, 'users'), where(documentId(), 'in', chunk)));
+                userDocs.forEach(doc => {
+                    userProfilesCache[doc.id] = doc.data();
+                });
+            }
+            return userProfilesCache;
+        }
+
+        async function renderProfile(container, params = {}) {
+            const profileUserId = params.userId || currentUser.uid;
+            const isMyProfile = profileUserId === currentUser.uid;
+            
+            const userDocRef = doc(db, "users", profileUserId);
+            const unsubscribe = onSnapshot(userDocRef, (docSnap) => {
+                if (!docSnap.exists()) {
+                    container.innerHTML = emptyStateComponent('user-x', 'Profil Gak Ketemu', 'User ini mungkin udah pindah planet.');
+                    feather.replace();
+                    return;
+                }
+                
+                const profileUser = docSnap.data();
+                if (isMyProfile) {
+                    currentUserProfile = profileUser;
+                }
+                
+                let actionButtons = '';
+                if (isMyProfile) {
+                    let withdrawalButton = '';
+                    if (profileUser.balance >= 5000) {
+                        withdrawalButton = `<button data-action="open-withdrawal-modal" class="w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded-lg flex items-center justify-center transition-colors">
+                            <i data-feather="dollar-sign" class="mr-2"></i><span>Cairkan Biji Kopi</span>
+                        </button>`;
+                    } else {
+                        withdrawalButton = `
+                            <div class="relative group">
+                                <button class="w-full bg-gray-400 text-white p-3 rounded-lg flex items-center justify-center cursor-not-allowed">
+                                    <i data-feather="dollar-sign" class="mr-2"></i><span>Cairkan Biji Kopi</span>
+                                </button>
+                                <div class="absolute bottom-full mb-2 w-max max-w-xs left-1/2 -translate-x-1/2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-1 px-2 text-center z-10">
+                                    Sabar, Bos! Saldo baru bisa dicairkan kalau udah 5.000 biji kopi.
+                                    <div class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-800"></div>
+                                </div>
+                            </div>`;
+                    }
+                    
+                    actionButtons = `
+                        <div class="bg-white border border-gray-200 p-4 rounded-lg space-y-2">
+                            ${withdrawalButton}
+                             <button data-action="open-purchase-modal" class="w-full bg-gray-800 hover:bg-black text-white p-3 rounded-lg flex items-center justify-center transition-colors">
+                                 <i data-feather="shopping-cart" class="mr-2"></i><span>Beli Biji Kopi</span>
+                             </button>
+                             <button data-action="register-owner" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 p-3 rounded-lg flex items-center justify-center transition-colors">
+                                 <i data-feather="briefcase" class="mr-2"></i><span>Aku Punya Kedai Kopi</span>
+                             </button>
+                        </div>
+                    `;
+                }
+                
+                const userMenuHTML = !isMyProfile ? `
+                    <div class="absolute top-4 right-4">
+                        <button data-action="toggle-user-menu" data-user-id="${profileUserId}" class="text-gray-500 hover:text-gray-800">
+                            <i data-feather="more-vertical"></i>
+                        </button>
+                        <div id="user-menu-${profileUserId}" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-20 text-left border border-gray-100 py-1"></div>
+                    </div>
+                ` : '';
+
+                const changeAvatarButton = isMyProfile ? `
+                    <button data-action="open-change-avatar-modal" class="absolute bottom-0 right-0 bg-white p-2 rounded-full shadow-md hover:bg-gray-100 transition-colors">
+                        <i data-feather="camera" class="w-4 h-4 text-gray-600"></i>
+                    </button>
+                ` : '';
+
+                const avatarHTML = profileUser.avatar
+                    ? `<img src="${profileUser.avatar}" alt="${profileUser.name}" class="w-24 h-24 rounded-full object-cover border-4 border-white bg-gray-200" onerror="this.onerror=null;this.src='https://placehold.co/100x100/111827/f3f4f6?text=Gagal';">`
+                    : `<div class="w-24 h-24 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center"><i data-feather="user" class="w-12 h-12 text-gray-500"></i></div>`;
+
+                container.innerHTML = `
+                    <div class="pb-4">
+                        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-4">
+                            <div class="h-24 bg-gray-800"></div>
+                            <div class="p-4 text-center -mt-16 relative">
+                                 <div class="relative inline-block">
+                                    ${avatarHTML}
+                                    ${changeAvatarButton}
+                                </div>
+                                ${userMenuHTML}
+                                <h2 class="text-2xl font-bold text-gray-800 mt-2">${profileUser.name}</h2>
+                                <p class="text-gray-500">${profileUser.rank}</p>
+                                <div class="flex justify-center items-center gap-2 mt-2">
+                                    <i data-feather="map-pin" class="w-4 h-4 text-gray-500"></i>
+                                    <span class="text-sm text-gray-600 font-semibold">${profileUser.currentCity || 'Nusantara'}</span>
+                                   ${isMyProfile ? `<button data-action="open-city-selection-modal" class="text-xs text-gray-500 hover:underline">(Ganti Lokasi)</button>` : ''}
+                                </div>
+                                <p class="text-sm text-gray-600 mt-2 italic">"${profileUser.bio || 'Bio masih kosong, kayak dompet akhir bulan.'}"</p>
+                               ${isMyProfile ? `<button data-action="open-edit-bio-modal" class="text-xs text-gray-500 hover:underline mt-1">Edit Bio</button>` : ''}
+                            </div>
+                           <div class="flex justify-around p-4 border-t border-gray-200">
+                                <div class="text-center">
+                                    <p class="font-bold text-lg" id="profile-post-count">...</p>
+                                    <p class="text-xs text-gray-500">Postingan</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="font-bold text-lg" id="profile-likes-count">...</p>
+                                    <p class="text-xs text-gray-500">Disukai</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="font-bold text-lg" id="profile-saved-count">...</p>
+                                    <p class="text-xs text-gray-500">Dikoleksi</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="owned-shop-panel" class="px-4"></div>
+                        
+                        <div id="creator-panel" class="px-4"></div>
+                        
+                        <div id="penguasa-kota-panel" class="px-4"></div>
+
+                        <div class="px-4 mt-4">
+                        ${isMyProfile ? `
+                            <details class="bg-white border border-gray-200 rounded-lg group">
+                                <summary class="p-4 font-bold text-lg cursor-pointer flex justify-between items-center">
+                                    <span>Pengaturan & Dompet</span>
+                                     <i data-feather="chevron-down" class="chevron-icon transition-transform duration-300"></i>
+                                </summary>
+                                <div class="panel-content border-t border-gray-200 space-y-4">
+                                    <div class="bg-white border border-gray-200 p-4 rounded-lg">
+                                        <h3 class="font-semibold mb-3 text-gray-700">Info Saldo</h3>
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-sm text-gray-600">
+                                                    Saldo Biji Kopi:
+                                                </p>
+                                                <p class="text-lg font-bold text-gray-800 flex items-center gap-1">
+                                                    <i data-feather="coffee" class="w-4 h-4"></i>
+                                                    <span>${profileUser.balance.toLocaleString('id-ID')}</span>
+                                                </p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-sm text-gray-600">
+                                                    Setara dengan:
+                                                </p>
+                                                <p class="text-lg font-bold text-green-600" id="rupiah-equivalent">
+                                                    </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-white border border-gray-200 p-4 rounded-lg">
+                                        <h3 class="font-semibold mb-3 text-gray-700">Ganti Nama Panggilan</h3>
+                                        <div class="flex space-x-2">
+                                           <input id="update-name-input" class="w-full bg-gray-100 border border-gray-300 p-2 rounded placeholder-gray-400" value="${profileUser.name}">
+                                           <button id="update-name-btn" data-action="update-name" class="bg-gray-800 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition-colors disabled:bg-gray-400">Ganti</button>
+                                        </div>
+                                    </div>
+                                    ${actionButtons}
+                                    <button data-action="logout" class="w-full mt-4 bg-red-100 hover:bg-red-200 text-red-800 p-3 rounded-lg flex items-center justify-center transition-colors">
+                                        <i data-feather="log-out" class="mr-2"></i><span>Keluar (Logout)</span>
+                                    </button>
+                                </div>
+                            </details>
+                        ` : ''}
+                        </div>
+                        
+                        <div id="popular-posts-section" class="bg-white border border-gray-200 p-4 rounded-lg mx-4 mt-4"></div>
+
+                    </div>`;
+
+                const rupiahValue = profileUser.balance * 100;
+                const formattedRupiah = new Intl.NumberFormat('id-ID', { 
+                    style: 'currency', 
+                    currency: 'IDR', 
+                    minimumFractionDigits: 0 
+                }).format(rupiahValue);
+
+                const rupiahElement = document.getElementById('rupiah-equivalent');
+                if (rupiahElement) {
+                    rupiahElement.textContent = formattedRupiah;
+                }
+                
+                const profileUserForPanel = isMyProfile ? currentUserProfile : profileUser;
+                if (profileUserForPanel.rank === 'Penguasa Kota') {
+                    const adminPanelContainer = document.getElementById('penguasa-kota-panel');
+                    adminPanelContainer.innerHTML = `
+                    <details class="bg-white border border-yellow-400 rounded-lg group mt-4">
+                        <summary class="p-4 font-bold text-lg cursor-pointer flex justify-between items-center text-yellow-800">
+                            <span class="flex items-center gap-2"><i data-feather="key"></i> Panel Penguasa Kota</span>
+                             <i data-feather="chevron-down" class="chevron-icon transition-transform duration-300"></i>
+                        </summary>
+                        <div class="panel-content border-t border-yellow-200 space-y-4">
+                            <p class="text-sm text-gray-600">
+                                Kirim saldo Biji Kopi ke warga di kotamu. Pastikan emailnya udah bener.
+                            </p>
+                            <div>
+                                <label for="target-email" class="block text-sm font-medium text-gray-700 mb-1">Email Target</label>
+                                <input type="email" id="target-email" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md" placeholder="email@target.com">
+                            </div>
+                            <div>
+                                <label for="balance-amount" class="block text-sm font-medium text-gray-700 mb-1">Jumlah Biji Kopi</label>
+                                <input type="number" id="balance-amount" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md" placeholder="100">
+                            </div>
+                            <button id="send-balance-btn" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 rounded-md">
+                                Kirim Saldo
+                            </button>
+                        </div>
+                    </details>
+                    `;
+                    document.getElementById('send-balance-btn').addEventListener('click', handleSendBalanceByAdmin);
+                }
+
+                feather.replace();
+                updateProfileCounts(profileUserId);
+                renderPopularPosts(profileUserId);
+                renderCreatorJourneyPanel(profileUserId);
+                renderOwnedShopPanel(profileUserId); // Panggil fungsi baru untuk render kedai
+            });
+            unsubscribeListeners.push(unsubscribe);
+        }
+
+        // [FITUR BARU] Fungsi untuk merender panel kedai milik Bos Warkop
+        async function renderOwnedShopPanel(userId) {
+            const container = document.getElementById('owned-shop-panel');
+            if (!container) return;
+
+            const shopQuery = query(collection(db, "coffeeShops"), where("ownerId", "==", userId));
+            const snapshot = await getDocs(shopQuery);
+
+            if (snapshot.empty) {
+                container.innerHTML = ''; // Pastikan kosong jika bukan bos warkop
+                return;
+            }
+
+            const isMyProfile = userId === currentUser.uid;
+
+            const shopsHTML = snapshot.docs.map(doc => {
+                const shop = { id: doc.id, ...doc.data() };
+                
+                // Tombol manajemen hanya muncul di profil sendiri
+                const managementButtons = isMyProfile ? `
+                    <div class="flex gap-2 mt-3">
+                        <button data-action="open-edit-shop-modal" data-shop-id="${shop.id}" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-lg text-sm flex items-center justify-center transition-colors">
+                            <i data-feather="edit-2" class="w-4 h-4 mr-2"></i> Edit Info
+                        </button>
+                        <button data-action="open-promote-shop-modal" data-shop-id="${shop.id}" class="flex-1 bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-semibold p-2 rounded-lg text-sm flex items-center justify-center transition-colors">
+                            <i data-feather="trending-up" class="w-4 h-4 mr-2"></i> Promosiin
+                        </button>
+                    </div>
+                ` : '';
+
+                return `
+                    <div class="bg-white p-4 rounded-lg shadow-md mb-4">
+                        <div data-action="go-to-page" data-page="kedai-detail" data-param='{"shopId": "${shop.id}"}' class="flex items-center gap-4 cursor-pointer group">
+                            <img src="${shop.imageUrl || 'https://placehold.co/100x100/111827/f3f4f6?text=Logo'}" alt="${shop.name}" class="w-20 h-20 object-cover rounded-md flex-shrink-0">
+                            <div class="flex-1">
+                                <p class="text-xs text-gray-500 font-semibold">KEDAI MILIKNYA</p>
+                                <p class="font-bold text-lg group-hover:underline">${shop.name}</p>
+                                <p class="text-sm text-gray-600 line-clamp-2">${shop.address}</p>
+                            </div>
+                        </div>
+                        ${managementButtons}
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = shopsHTML;
+            feather.replace();
+        }
+
+        async function updateProfileCounts(userId) {
+            // Menghitung jumlah post dan total likes
+            const postsQuery = query(collection(db, "posts"), where("authorId", "==", userId));
+            const postsSnapshot = await getDocs(postsQuery);
+            let totalLikes = 0;
+            postsSnapshot.forEach(doc => {
+                totalLikes += (doc.data().likes || []).length;
+            });
+
+            // Menghitung berapa kali postingan user di-save oleh orang lain
+            const allUsersSnapshot = await getDocs(collection(db, "users"));
+            let totalSavedCount = 0;
+            allUsersSnapshot.forEach(userDoc => {
+                const savedPosts = userDoc.data().savedPosts || [];
+                postsSnapshot.docs.forEach(postDoc => {
+                    if (savedPosts.includes(postDoc.id)) {
+                        totalSavedCount++;
+                    }
+                });
+            });
+
+            const postCountEl = document.getElementById('profile-post-count');
+            const likesCountEl = document.getElementById('profile-likes-count');
+            const savedCountEl = document.getElementById('profile-saved-count');
+
+            if (postCountEl) postCountEl.textContent = postsSnapshot.size;
+            if (likesCountEl) likesCountEl.textContent = totalLikes;
+            if (savedCountEl) savedCountEl.textContent = totalSavedCount;
+            
+            // Update panel kreator dengan data baru
+            updateCreatorJourneyUI(totalLikes, totalSavedCount);
+        }
+
+        // [MODERNISASI] Panel Kreator/Journey Monetisasi
+        async function renderCreatorJourneyPanel(userId) {
+            const container = document.getElementById('creator-panel');
+            if (!container) return;
+
+            container.innerHTML = `
+                <details class="bg-white border border-gray-200 rounded-lg group">
+                    <summary class="p-4 font-bold text-lg cursor-pointer flex justify-between items-center">
+                        <span class="flex items-center gap-2"><i data-feather="award"></i> Panel Kreator</span>
+                        <i data-feather="chevron-down" class="chevron-icon transition-transform duration-300"></i>
+                    </summary>
+                    <div class="panel-content border-t border-gray-200 space-y-4">
+                        <div class="text-center bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-600 italic">"Jadi sultan itu dimulai dari satu postingan. Semangat ngonten!"</p>
+                        </div>
+                        
+                        <h4 class="font-semibold">Jalan Menuju Cuan 💸</h4>
+                        <div class="space-y-3">
+                            <div class="relative">
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Total Likes Postingan</span>
+                                    <span class="text-sm font-medium text-gray-700" id="likes-progress-text">0 / 20,000</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div id="likes-progress-bar" class="bg-red-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm font-medium text-gray-700">Dikoleksi Pengguna Lain</span>
+                                    <span class="text-sm font-medium text-gray-700" id="saves-progress-text">0 / 2,000</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div id="saves-progress-bar" class="bg-blue-500 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="monetization-status" class="hidden mt-4 text-center p-4 rounded-lg"></div>
+                    </div>
+                </details>
+            `;
+            feather.replace();
+            // Panggil update UI setelah render
+            updateProfileCounts(userId);
+        }
+        
+        function updateCreatorJourneyUI(totalLikes, totalSavedCount) {
+            const LIKES_GOAL = 20000;
+            const SAVES_GOAL = 2000;
+
+            const likesProgress = Math.min((totalLikes / LIKES_GOAL) * 100, 100);
+            const savesProgress = Math.min((totalSavedCount / SAVES_GOAL) * 100, 100);
+
+            const likesBar = document.getElementById('likes-progress-bar');
+            const likesText = document.getElementById('likes-progress-text');
+            const savesBar = document.getElementById('saves-progress-bar');
+            const savesText = document.getElementById('saves-progress-text');
+            const monetizationEl = document.getElementById('monetization-status');
+
+            if (likesBar) likesBar.style.width = `${likesProgress}%`;
+            if (likesText) likesText.textContent = `${totalLikes.toLocaleString('id-ID')} / ${LIKES_GOAL.toLocaleString('id-ID')}`;
+            if (savesBar) savesBar.style.width = `${savesProgress}%`;
+            if (savesText) savesText.textContent = `${totalSavedCount.toLocaleString('id-ID')} / ${SAVES_GOAL.toLocaleString('id-ID')}`;
+
+            if (monetizationEl) {
+                if (likesProgress >= 100 && savesProgress >= 100) {
+                    monetizationEl.innerHTML = `<p class="font-bold">CONGRATS! Akunmu udah bisa dapet cuan!</p><p class="text-sm">Hubungi admin buat info lanjut biar gak salah paham.</p>`;
+                    monetizationEl.className = 'mt-4 text-center p-4 rounded-lg bg-green-100 border-l-4 border-green-500 text-green-700';
+                    monetizationEl.classList.remove('hidden');
+                } else {
+                    monetizationEl.innerHTML = `<p class="font-bold">Dikit Lagi!</p><p class="text-sm">Terus bikin postingan keren biar targetnya cepet kelar!</p>`;
+                     monetizationEl.className = 'mt-4 text-center p-4 rounded-lg bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700';
+                    monetizationEl.classList.remove('hidden');
+                }
+            }
+        }
+
+
+        async function renderPopularPosts(userId) {
+            const container = document.getElementById('popular-posts-section');
+            if (!container) return;
+
+            container.innerHTML = `<h3 class="font-bold text-lg mb-4">Postingan Ter-Hype</h3>`;
+            const postsQuery = query(collection(db, "posts"), where("authorId", "==", userId));
+            const snapshot = await getDocs(postsQuery);
+
+            if (snapshot.empty) {
+                container.innerHTML += `<p class="text-sm text-gray-500">Belum ada postingan, masih sepi.</p>`;
+                return;
+            }
+
+            const posts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            posts.sort((a, b) => b.likes.length - a.likes.length);
+
+            const popularPostsHTML = posts.slice(0, 3).map(post => `
+                <div data-action="go-to-post" data-id="${post.id}" class="p-3 bg-gray-50 hover:bg-gray-100 rounded-lg cursor-pointer border">
+                    <p class="truncate text-sm">"${post.content}"</p>
+                    <p class="text-xs text-gray-500 mt-1">${post.likes.length} suka</p>
+                </div>
+            `).join('');
+
+            container.innerHTML += `<div class="space-y-2">${popularPostsHTML}</div>`;
+        }
+
+        async function renderPostDetail(container, postId) {
+            const postDocRef = doc(db, "posts", postId);
+            
+            const unsubscribePost = onSnapshot(postDocRef, async (docSnap) => {
+                if (!docSnap.exists()) {
+                    container.innerHTML = emptyStateComponent('alert-circle', 'Postingan Hilang', 'Postingan ini mungkin udah dihapus sama yang punya.');
+                    feather.replace();
+                    return;
+                }
+                
+                const post = { id: docSnap.id, ...docSnap.data() };
+                const userIdsToFetch = new Set([post.authorId]);
+                if (post.likes) post.likes.forEach(id => userIdsToFetch.add(id));
+                if (post.tips) post.tips.forEach(tip => userIdsToFetch.add(tip.tipperId));
+                if (post.viewedBy) post.viewedBy.forEach(viewerId => userIdsToFetch.add(viewerId));
+                
+                const userProfiles = await fetchMultipleUserProfiles(Array.from(userIdsToFetch));
+
+                const author = userProfiles[post.authorId];
+
+                if (!author || (currentUserProfile.blockedUsers && currentUserProfile.blockedUsers.includes(post.authorId))) {
+                    container.innerHTML = emptyStateComponent('alert-circle', 'Postingan Diblokir', 'Kamu gak bisa liat postingan dari user ini.');
+                    feather.replace();
+                    return;
+                }
+
+                const postHTML = postComponent(post, author, true, userProfiles);
+                container.innerHTML = `
+                    <div id="post-detail-content" class="space-y-4">
+                        ${postHTML}
+                        <div id="comment-section-container">
+                            ${loadingComponent()}
+                        </div>
+                    </div>`;
+                feather.replace();
+                renderComments(postId);
+            });
+            unsubscribeListeners.push(unsubscribePost);
+        }
+        
+        function renderComments(postId) {
+            const commentsQuery = query(collection(db, "posts", postId, "comments"), orderBy("createdAt", "asc"));
+            const unsubscribeComments = onSnapshot(commentsQuery, async (snapshot) => {
+                const container = document.getElementById('comment-section-container');
+                if (!container) return;
+
+                const userIds = [...new Set(snapshot.docs.map(doc => doc.data().authorId))];
+                const userProfiles = await fetchMultipleUserProfiles(userIds);
+
+                const comments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+                    .filter(comment => !(currentUserProfile.blockedUsers && currentUserProfile.blockedUsers.includes(comment.authorId)));
+                
+                const commentTree = buildCommentTree(comments);
+                const commentsHTML = commentTree.map(thread => commentThreadComponent(thread, userProfiles)).join('');
+
+                container.innerHTML = `
+                    <div class="mt-6 space-y-4">${commentsHTML || '<p class="text-gray-500 text-sm text-center mt-8">Belum ada yang nyerocos. Jadilah yang pertama!</p>'}</div>
+                    <div class="bg-white border border-gray-200 p-2 rounded-lg mt-6">
+                        <textarea id="comment-input-toplevel" class="w-full bg-transparent text-sm placeholder-gray-500 focus:outline-none" rows="2" placeholder="Tulisin komentarmu di sini..."></textarea>
+                        <div class="text-right mt-1">
+                            <button data-action="add-comment" data-id="${postId}" class="bg-gray-800 hover:bg-black text-white font-bold py-1 px-3 rounded-full text-xs">Timbrung!</button>
+                        </div>
+                    </div>
+                `;
+                feather.replace();
+            });
+            unsubscribeListeners.push(unsubscribeComments);
+        }
+
+        async function renderCoffeeShop(container) {
+            let bosWarkopButton = '';
+            if (currentUserProfile && currentUserProfile.rank && currentUserProfile.rank.trim().toLowerCase() === 'bos warkop') {
+                bosWarkopButton = `
+                    <div class="mb-4">
+                        <button data-action="open-add-shop-modal" class="w-full bg-gray-800 hover:bg-black text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center transition-colors">
+                            <i data-feather="plus-circle" class="mr-2"></i><span>Daftarin Kedai Baru</span>
+                        </button>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div id="coffee-shop-list-container">
+                    ${bosWarkopButton}
+                    <div id="promoted-shops-list" class="grid grid-cols-2 gap-4 mb-4"></div>
+                    <div id="coffee-shop-list" class="grid grid-cols-2 gap-4"></div>
+                    <div id="shop-loader" class="text-center py-4 col-span-2"></div>
+                </div>
+            `;
+            feather.replace();
+            
+            const promotedQuery = query(collection(db, "coffeeShops"), where("promotedUntil", ">", new Date()));
+            const promotedSnapshot = await getDocs(promotedQuery);
+            const promotedContainer = document.getElementById('promoted-shops-list');
+            
+            if (!promotedSnapshot.empty) {
+                promotedContainer.innerHTML = promotedSnapshot.docs.map(doc => coffeeShopCardComponent(doc.data(), doc.id, true)).join('');
+            }
+
+            await loadMoreShops(true);
+        }
+        
+        async function loadMoreShops(isInitial = false) {
+            const listContainer = document.getElementById('coffee-shop-list');
+            const loader = document.getElementById('shop-loader');
+            if (!listContainer || !loader) return;
+
+            loader.innerHTML = loadingComponent();
+            feather.replace();
+
+            const city = currentUserProfile.currentCity;
+            const shopsCollectionRef = collection(db, "coffeeShops");
+
+            if (city && city !== "Nusantara") {
+                if (!isInitial) {
+                    loader.innerHTML = '';
+                    return;
+                }
+                
+                const cityQuery = query(shopsCollectionRef, where("city", "==", city));
+                const snapshot = await getDocs(cityQuery);
+
+                listContainer.innerHTML = '';
+
+                if (snapshot.empty && document.getElementById('promoted-shops-list').innerHTML === '') {
+                    listContainer.innerHTML = `<div class="col-span-2">${emptyStateComponent('map-pin', 'Waduh, Kosong!', 'Belum ada kedai kopi terdaftar di lokasi ini.')}</div>`;
+                    loader.innerHTML = '';
+                    feather.replace();
+                    return;
+                }
+
+                const shopsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                shopsData.sort((a, b) => a.name.localeCompare(b.name));
+
+                const shopsHTML = shopsData
+                    .filter(shop => !shop.promotedUntil || shop.promotedUntil.toDate() < new Date())
+                    .map(shop => coffeeShopCardComponent(shop, shop.id, false))
+                    .join('');
+                
+                listContainer.innerHTML = shopsHTML;
+                loader.innerHTML = '<p class="text-sm text-gray-400">Udah semua kedai di kota ini ditampilin.</p>';
+                feather.replace();
+
+            } else {
+                let shopsQuery;
+                let baseQuery = query(shopsCollectionRef, orderBy("name"), limit(PAGE_SIZE));
+
+                if (lastVisibleShop && !isInitial) {
+                    shopsQuery = query(baseQuery, startAfter(lastVisibleShop));
+                } else {
+                    shopsQuery = baseQuery;
+                }
+
+                const snapshot = await getDocs(shopsQuery);
+
+                if (isInitial) {
+                    listContainer.innerHTML = '';
+                }
+
+                if (snapshot.empty && isInitial && document.getElementById('promoted-shops-list').innerHTML === '') {
+                    listContainer.innerHTML = `<div class="col-span-2">${emptyStateComponent('map-pin', 'Waduh, Kosong!', 'Belum ada kedai kopi terdaftar di lokasi ini.')}</div>`;
+                    loader.innerHTML = '';
+                    feather.replace();
+                    return;
+                }
+                
+                lastVisibleShop = snapshot.docs[snapshot.docs.length - 1];
+
+                const shopsHTML = snapshot.docs
+                    .filter(doc => !doc.data().promotedUntil || doc.data().promotedUntil.toDate() < new Date())
+                    .map(doc => coffeeShopCardComponent(doc.data(), doc.id, false))
+                    .join('');
+                
+                listContainer.innerHTML += shopsHTML;
+
+                if (snapshot.docs.length < PAGE_SIZE) {
+                    loader.innerHTML = '<p class="text-sm text-gray-400">Udah mentok, gak ada lagi kedai.</p>';
+                } else {
+                    // [MODERNISASI] Sembunyikan tombol 'load more' untuk infinite scroll
+                    loader.innerHTML = `<button data-action="load-more-shops" class="hidden">Lihat Lagi</button>`;
+                }
+                feather.replace();
+            }
+        }
+
+        function coffeeShopCardComponent(shop, shopId, isPromoted) {
+            const promotedBadge = isPromoted ? `
+                <div class="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1 shadow-lg">
+                    <i data-feather="star" class="w-3 h-3 fill-current"></i>
+                    <span>Lagi Naik Daun</span>
+                </div>
+            ` : '';
+            return `
+                <div data-action="go-to-page" data-page="kedai-detail" data-param='{"shopId": "${shopId}"}' class="relative bg-white rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col">
+                    <div class="h-64 bg-cover bg-center" style="background-image: url('${shop.imageUrl || 'https://placehold.co/400x500/111827/f3f4f6?text=Sampit+Ngopi'}')"></div>
+                    ${promotedBadge}
+                    <div class="p-4 flex-grow flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-bold text-lg mb-1 font-brand truncate">${shop.name}</h3>
+                            <p class="text-xs text-gray-600 flex items-start"><i data-feather="map-pin" class="w-3 h-3 mr-2 mt-0.5 flex-shrink-0"></i><span class="line-clamp-2">${shop.address}</span></p>
+                        </div>
+                        <div class="flex items-center text-sm text-gray-500 mt-3">
+                            <i data-feather="star" class="w-4 h-4 mr-1 fill-current text-yellow-500"></i>
+                            <span class="font-semibold">${shop.rating?.toFixed(1) || 'Baru'}</span>
+                            <span class="mx-2">•</span>
+                            <span>${shop.reviewCount || 0} Bacotan</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function renderRakKopi(container) {
+            if (!currentUserProfile || !currentUserProfile.savedPosts || currentUserProfile.savedPosts.length === 0) {
+                container.innerHTML = emptyStateComponent('bookmark', 'Simpenan Masih Kosong', 'Postingan yang kamu simpen bakal muncul di sini.');
+                feather.replace();
+                return;
+            }
+            
+            container.innerHTML = loadingComponent();
+            
+            const savedPostIds = currentUserProfile.savedPosts;
+            const postRefs = savedPostIds.map(id => getDoc(doc(db, "posts", id)));
+            const postSnapshots = await Promise.all(postRefs);
+            
+            const postsData = postSnapshots
+                .filter(snap => snap.exists())
+                .map(snap => ({ id: snap.id, ...snap.data() }));
+
+            const userIds = new Set();
+            postsData.forEach(post => {
+                userIds.add(post.authorId);
+                if (post.likes && post.likes.length > 0) {
+                    post.likes.forEach(likerId => userIds.add(likerId));
+                }
+                 if (post.tips && post.tips.length > 0) {
+                    post.tips.forEach(tip => userIds.add(tip.tipperId));
+                }
+                if (post.viewedBy) post.viewedBy.forEach(viewerId => userIds.add(viewerId));
+            });
+
+            const userProfiles = await fetchMultipleUserProfiles(Array.from(userIds));
+
+            const postsHTML = postsData
+                .map(post => {
+                    const author = userProfiles[post.authorId];
+                    if (!author || (currentUserProfile.blockedUsers && currentUserProfile.blockedUsers.includes(post.authorId))) return '';
+                    return postComponent(post, author, false, userProfiles);
+                })
+                .join('');
+
+            container.innerHTML = `<div class="space-y-4">${postsHTML || emptyStateComponent('bookmark', 'Simpenan Masih Kosong', 'Postingan yang kamu simpen bakal muncul di sini.')}</div>`;
+            feather.replace();
+        }
+
+        // --- ACTION FUNCTIONS ---
+        async function createNewPost(button) {
+            const contentEl = document.getElementById('post-input');
+            const content = contentEl.value.trim();
+            if (!content) {
+                showToast('Isi dulu, jangan kosong.', 'alert-circle');
+                return;
+            }
+            if (content.length > 115) {
+                showToast('Kepanjangan, maksimal 115 karakter ya!', 'alert-circle');
+                return;
+            }
+            
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.innerHTML = `<i data-feather="loader" class="animate-spin mx-auto h-4 w-4"></i>`;
+            feather.replace();
+
+            try {
+                const postData = {
+                    authorId: currentUser.uid,
+                    content: content,
+                    likes: [],
+                    tips: [],
+                    commentCount: 0,
+                    city: currentUserProfile.currentCity || "Nusantara",
+                    createdAt: serverTimestamp()
+                };
+                const newPostRef = await addDoc(collection(db, "posts"), postData);
+
+                const timelineFeed = document.getElementById('timeline-feed');
+                const tempPost = { ...postData, id: newPostRef.id, createdAt: { seconds: Date.now() / 1000 } };
+                const newPostHTML = postComponent(tempPost, currentUserProfile, false, userProfilesCache);
+                
+                if (timelineFeed.querySelector('.post-card')) {
+                    timelineFeed.insertAdjacentHTML('afterbegin', newPostHTML);
+                } else {
+                    timelineFeed.innerHTML = newPostHTML;
+                }
+                feather.replace(); 
+
+                contentEl.value = '';
+                document.getElementById('char-counter').textContent = '0 / 115';
+                showToast('Sip, postinganmu udah online!', 'check-circle');
+            } catch (error) {
+                console.error("Error adding post: ", error);
+                showToast('Gagal posting, coba lagi.', 'alert-circle');
+            } finally {
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+        
+        async function toggleLike(postId, button) {
+            const postRef = doc(db, "posts", postId);
+            const icon = button.querySelector('.feather-heart');
+            const countSpan = button.querySelector('span');
+
+            if (!icon || !countSpan) {
+                console.error("Could not find like button elements for post:", postId);
+                return;
+            }
+
+            const isCurrentlyLiked = icon.classList.contains('fill-current');
+            let currentCount = parseInt(countSpan.textContent);
+
+            if (isCurrentlyLiked) {
+                icon.classList.remove('fill-current', 'text-red-500');
+                button.classList.remove('text-red-500');
+                countSpan.textContent = currentCount - 1;
+            } else {
+                icon.classList.add('fill-current', 'text-red-500');
+                button.classList.add('text-red-500');
+                countSpan.textContent = currentCount + 1;
+            }
+
+            try {
+                await updateDoc(postRef, {
+                    likes: !isCurrentlyLiked ? arrayUnion(currentUser.uid) : arrayRemove(currentUser.uid)
+                });
+            } catch (error) {
+                console.error("Error toggling like:", error);
+                showToast('Gagal update like. Coba lagi.', 'alert-circle');
+                 if (isCurrentlyLiked) {
+                    icon.classList.add('fill-current', 'text-red-500');
+                    button.classList.add('text-red-500');
+                    countSpan.textContent = currentCount;
+                } else {
+                    icon.classList.remove('fill-current', 'text-red-500');
+                    button.classList.remove('text-red-500');
+                    countSpan.textContent = currentCount;
+                }
+            }
+        }
+        
+        async function toggleSave(postId, button) {
+            const userRef = doc(db, "users", currentUser.uid);
+            const isSaved = currentUserProfile.savedPosts.includes(postId);
+            const icon = button.querySelector('.feather-bookmark');
+            
+            if (!icon) {
+                console.error("Could not find save button element for post:", postId);
+                return;
+            }
+
+            if (isSaved) {
+                button.classList.remove('text-gray-900');
+                icon.classList.remove('fill-current');
+            } else {
+                button.classList.add('text-gray-900');
+                icon.classList.add('fill-current');
+            }
+            
+            showToast(isSaved ? 'Dihapus dari simpenan' : 'Berhasil disimpen!', 'bookmark');
+
+            try {
+                await updateDoc(userRef, {
+                    savedPosts: isSaved ? arrayRemove(postId) : arrayUnion(postId)
+                });
+                
+                if (isSaved) {
+                    currentUserProfile.savedPosts = currentUserProfile.savedPosts.filter(id => id !== postId);
+                } else {
+                    currentUserProfile.savedPosts.push(postId);
+                }
+            } catch(error) {
+                console.error("Error toggling save:", error);
+                showToast('Gagal nyimpen. Coba lagi.', 'alert-circle');
+                 if (isSaved) {
+                    button.classList.add('text-gray-900');
+                    icon.classList.add('fill-current');
+                } else {
+                    button.classList.remove('text-gray-900');
+                    icon.classList.remove('fill-current');
+                }
+            }
+        }
+
+        async function addComment(postId, parentId = null, button) {
+            const inputId = parentId ? `reply-input-${parentId}` : 'comment-input-toplevel';
+            const inputEl = document.getElementById(inputId);
+            const content = inputEl.value.trim();
+            if (!content) return;
+
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = '...';
+
+            try {
+                const postRef = doc(db, "posts", postId);
+                const commentsColRef = collection(db, "posts", postId, "comments");
+                
+                await addDoc(commentsColRef, {
+                    authorId: currentUser.uid,
+                    content: content,
+                    parentId: parentId,
+                    createdAt: serverTimestamp()
+                });
+
+                await updateDoc(postRef, { commentCount: increment(1) });
+
+                inputEl.value = '';
+                showToast('Komentar berhasil dikirim!', 'check-circle');
+                if (parentId) {
+                    const formContainer = document.getElementById(`reply-form-${parentId}`);
+                    formContainer.classList.add('hidden');
+                    formContainer.innerHTML = '';
+                }
+            } catch (error) {
+                console.error("Error adding comment: ", error);
+                showToast('Gagal komen, coba lagi.', 'alert-circle');
+            } finally {
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        function confirmDeletePost(postId) {
+            showModal(
+                'Hapus Postingan?',
+                'Beneran nih mau dihapus? Ntar nyesel, lho.',
+                [
+                    { text: 'Gak Jadi', class: 'bg-gray-500 hover:bg-gray-600', action: 'close' },
+                    { text: 'Hapus Aja', class: 'bg-red-600 hover:bg-red-700', action: () => deletePost(postId) },
+                ]
+            );
+        }
+
+        async function deletePost(postId) {
+            try {
+                const postRef = doc(db, "posts", postId);
+                const commentsRef = collection(db, "posts", postId, "comments");
+                
+                const commentsSnapshot = await getDocs(commentsRef);
+                const batch = writeBatch(db);
+                commentsSnapshot.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+                await batch.commit();
+
+                await deleteDoc(postRef);
+
+                closeModal();
+                showToast('Postingan udah dihapus.', 'check-circle');
+
+                const postElement = document.getElementById(`post-${postId}`);
+                if (postElement) {
+                    postElement.style.transition = 'opacity 0.5s ease';
+                    postElement.style.opacity = '0';
+                    setTimeout(() => postElement.remove(), 500);
+                }
+
+                if (currentPageId === 'post-detail') {
+                    goBack();
+                }
+            } catch (error) {
+                console.error("Error deleting post:", error);
+                showToast('Gagal menghapus postingan.', 'alert-circle');
+            }
+        }
+        
+        async function updateName(button) {
+            const input = document.getElementById('update-name-input');
+            const newName = input.value.trim();
+            if (newName.length < 3 || newName.length > 25) {
+                showToast('Nama harus antara 3 dan 25 karakter.', 'alert-circle');
+                return;
+            }
+            
+            const originalText = button.textContent;
+            button.disabled = true;
+            button.textContent = '...';
+        
+            try {
+                await updateProfile(auth.currentUser, { displayName: newName });
+                await updateDoc(doc(db, "users", currentUser.uid), { name: newName });
+        
+                // PERBARUI CACHE SECARA LANGSUNG
+                if (userProfilesCache[currentUser.uid]) {
+                    userProfilesCache[currentUser.uid].name = newName;
+                }
+        
+                showToast('Nama berhasil diganti!', 'check-circle');
+            } catch (error) {
+                console.error("Error updating name:", error);
+                showToast('Gagal ganti nama.', 'alert-circle');
+            } finally {
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        function openEditBioModal() {
+            const content = `
+                <textarea id="bio-input" class="w-full bg-gray-100 border border-gray-300 p-2 rounded" rows="4" placeholder="Tulis bio singkat di sini...">${currentUserProfile.bio || ''}</textarea>
+            `;
+            showModal('Edit Bio', content, [
+                { text: 'Batal', class: 'bg-gray-500 hover:bg-gray-600', action: 'close' },
+                { text: 'Simpan', class: 'bg-gray-800 hover:bg-black', action: (btn) => updateBio(btn) }
+            ]);
+        }
+
+        async function updateBio(button) {
+            const bioInput = document.getElementById('bio-input');
+            const newBio = bioInput.value.trim();
+
+            const originalContent = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = `<i data-feather="loader" class="animate-spin mx-auto"></i>`;
+            feather.replace();
+
+            try {
+                await updateDoc(doc(db, "users", currentUser.uid), { bio: newBio });
+                closeModal();
+                showToast('Bio berhasil di-update!', 'check-circle');
+            } catch (error) {
+                console.error("Error updating bio:", error);
+                showToast('Gagal update bio.', 'alert-circle');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalContent;
+            }
+        }
+
+        // --- UI COMPONENTS & HELPERS ---
+        function loadingComponent() { return `<div class="flex justify-center items-center p-10"><i data-feather="loader" class="animate-spin text-gray-400 w-8 h-8"></i></div>`; }
+        function emptyStateComponent(icon, title, message) { return `<div class="text-center py-16 px-6 text-gray-500"><i data-feather="${icon}" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i><h3 class="text-lg font-semibold text-gray-700">${title}</h3><p class="text-sm">${message}</p></div>`; }
+        
+        function postComponent(post, author, isDetailed = false, allProfiles = {}) {
+            if (!post || !author) return '';
+            
+            if (post.type === 'promotion') {
+                const postDate = post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleString('id-ID', { day: 'numeric', month: 'long' }) : 'Baru saja';
+                const viewedCount = post.viewedBy ? post.viewedBy.length : 0;
+                const isOwner = currentUser.uid === post.authorId;
+
+                let ownerActions = '';
+                if (isOwner) {
+                    ownerActions = `
+                        <button data-action="open-promotion-viewers" data-id="${post.id}" class="flex items-center text-xs text-yellow-800 hover:underline">
+                            <i data-feather="eye" class="w-4 h-4 mr-1"></i>
+                            <span>Dilihat oleh ${viewedCount} orang</span>
+                        </button>
+                    `;
+                } else {
+                     ownerActions = `
+                        <div class="flex items-center text-xs text-yellow-800">
+                            <i data-feather="eye" class="w-4 h-4 mr-1"></i>
+                            <span>Dilihat ${viewedCount} kali</span>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div id="post-${post.id}" class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <i data-feather="award" class="text-yellow-600"></i>
+                                <span class="text-xs font-bold text-yellow-700">POSTINGAN PROMOSI</span>
+                            </div>
+                            <span class="text-xs text-gray-500">${postDate}</span>
+                        </div>
+                        <p class="text-gray-800">${post.content}</p>
+                        <button data-action="go-to-promoted-shop" data-shop-id="${post.promotedShopId}" data-id="${post.id}" class="w-full bg-yellow-400 hover:bg-yellow-500 text-yellow-900 font-bold py-2 px-4 rounded-lg transition-colors">
+                            Lihat Detail Kedai
+                        </button>
+                        <div class="pt-2 text-center">
+                           ${ownerActions}
+                        </div>
+                    </div>
+                `;
+            }
+
+            const postDate = post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleString('id-ID', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : 'Baru saja';
+            const isLiked = currentUser && post.likes?.includes(currentUser.uid);
+            const isSaved = currentUserProfile && currentUserProfile.savedPosts?.includes(post.id);
+            const canDelete = currentUser && (currentUser.uid === post.authorId);
+            
+            const taggedContent = post.content
+                .replace(/@([\w\s]+)/g, '<span class="mention-tag">@$1</span>')
+                .replace(/#([\w\s]+)/g, '<span class="kedai-tag">#$1</span>');
+
+            let socialProofHTML = '';
+            if (post.likes && post.likes.length > 0) {
+                const firstLiker = allProfiles[post.likes[0]] || { name: 'Seseorang' };
+                let text = `<b>${firstLiker.name}</b>`;
+                if (post.likes.length > 1) {
+                    text += ` dan <b>${post.likes.length - 1} lainnya</b> menyukai ini.`;
+                } else {
+                    text += ` menyukai ini.`
+                }
+                socialProofHTML += `<button data-action="open-likers-modal" data-post-id="${post.id}" class="w-full text-left text-xs text-gray-500 px-1 hover:underline">${text}</button>`;
+            }
+            if (post.tips && post.tips.length > 0) {
+                const firstTipper = allProfiles[post.tips[0].tipperId] || { name: 'Seseorang' };
+                let text = `<b>${firstTipper.name}</b>`;
+                if (post.tips.length > 1) {
+                    text += ` dan <b>${post.tips.length - 1} lainnya</b> mentraktir biji kopi.`;
+                } else {
+                    text += ` mentraktir biji kopi.`
+                }
+                socialProofHTML += `<button data-action="open-tippers-modal" data-post-id="${post.id}" class="w-full text-left text-xs text-gray-500 px-1 hover:underline">${text}</button>`;
+            }
+             if (post.commentCount && post.commentCount > 0 && !isDetailed) {
+                let text = `Lihat semua ${post.commentCount} komentar`;
+                socialProofHTML += `<button data-action="go-to-post" data-id="${post.id}" class="w-full text-left text-xs text-gray-500 px-1 hover:underline">${text}</button>`;
+            }
+
+            const avatarHTML = author.avatar
+                ? `<img src="${author.avatar}" alt="${author.name}" class="w-10 h-10 rounded-full object-cover bg-gray-200">`
+                : `<div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center"><i data-feather="user" class="w-6 h-6 text-gray-500"></i></div>`;
+
+            return `
+                <div id="post-${post.id}" class="bg-white border border-gray-200 rounded-xl p-4 flex flex-col space-y-4 post-card" data-author-name="${(author.name || '').toLowerCase()}">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-center space-x-3">
+                            ${avatarHTML}
+                            <div>
+                                <div class="flex items-center">
+                                    <button data-action="go-to-page" data-page="profile" data-param='{"userId": "${post.authorId}"}' class="font-semibold text-gray-800 text-left hover:underline">${author.name || 'Pengguna Anonim'}</button>
+                                </div>
+                                <p class="text-xs text-gray-500">${postDate}</p>
+                            </div>
+                        </div>
+                        ${canDelete ? `<button data-action="delete-post" data-id="${post.id}" class="text-gray-400 hover:text-red-500"><i data-feather="trash-2" class="w-4 h-4"></i></button>` : ''}
+                    </div>
+                    <div class="quote-box"><p class="text-lg leading-relaxed font-brand">${taggedContent}</p></div>
+                    <div class="space-y-1 pt-2">
+                        ${socialProofHTML}
+                    </div>
+                    <div class="flex justify-between items-center text-gray-500 pt-3">
+                        <div class="flex items-center space-x-5">
+                            <button data-action="toggle-like" data-id="${post.id}" class="icon-btn flex items-center space-x-2 hover:text-red-500 transition-colors ${isLiked ? 'text-red-500' : ''}">
+                                <i data-feather="heart" class="w-5 h-5 ${isLiked ? 'fill-current' : ''}"></i>
+                                <span class="text-sm font-medium">${post.likes?.length || 0}</span>
+                            </button>
+                            <button data-action="go-to-post" data-id="${post.id}" class="icon-btn flex items-center space-x-2 hover:text-gray-800 transition-colors">
+                                <i data-feather="message-square" class="w-5 h-5"></i>
+                                <span class="text-sm font-medium">${post.commentCount || 0}</span>
+                            </button>
+                            <button data-action="send-tip" data-id="${post.id}" data-author-id="${post.authorId}" class="icon-btn flex items-center space-x-2 hover:text-gray-800 transition-colors">
+                                <i data-feather="coffee" class="w-5 h-5"></i>
+                                <span class="text-sm font-medium">Traktir</span>
+                            </button>
+                        </div>
+                        <button data-action="toggle-save" data-id="${post.id}" class="icon-btn hover:text-gray-900 transition-colors ${isSaved ? 'text-gray-900' : ''}">
+                            <i data-feather="bookmark" class="w-5 h-5 ${isSaved ? 'fill-current' : ''}"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showToast(message, icon = 'info') {
+            const toast = document.getElementById('toast');
+            if(!toast) return;
+            toast.innerHTML = `<i data-feather="${icon}"></i> ${message}`;
+            feather.replace();
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        function showModal(title, contentHTML, actions = []) {
+            const modal = document.getElementById('modal');
+            const modalContent = document.getElementById('modal-content');
+            
+            const actionsHTML = actions.map(action => 
+                `<button class="modal-action-btn flex-1 py-2 px-4 rounded-lg font-semibold text-white transition-colors ${action.class}">${action.text}</button>`
+            ).join('');
+
+            modalContent.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg text-gray-800">${title}</h3>
+                    <button class="close-modal-btn text-gray-400 hover:text-gray-800"><i data-feather="x"></i></button>
+                </div>
+                <div>${contentHTML}</div>
+                ${actions.length > 0 ? `<div class="flex gap-2 mt-6">${actionsHTML}</div>` : ''}
+            `;
+            feather.replace();
+            
+            modalContent.querySelectorAll('.modal-action-btn').forEach((btn, index) => {
+                const actionConfig = actions[index];
+                if (typeof actionConfig.action === 'function') {
+                    btn.addEventListener('click', () => actionConfig.action(btn));
+                } else if (actionConfig.action === 'close') {
+                    btn.addEventListener('click', closeModal);
+                }
+            });
+
+            modal.classList.add('visible');
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('visible');
+            modal.querySelector('#modal-content').innerHTML = '';
+        }
+        
+        function buildCommentTree(comments) { 
+            const commentMap = {}; 
+            comments.forEach(c => { 
+                c.replies = []; 
+                commentMap[c.id] = c;
+            }); 
+            const tree = []; 
+            comments.forEach(c => { 
+                if(c.parentId && commentMap[c.parentId]) { 
+                    commentMap[c.parentId].replies.push(c);
+                } else { 
+                    tree.push(c); 
+                }
+            }); 
+            return tree; 
+        }
+
+        function showReplyForm(commentId) {
+            const formContainer = document.getElementById(`reply-form-${commentId}`);
+            if (formContainer.classList.contains('hidden')) {
+                formContainer.innerHTML = `
+                    <div class="bg-gray-100 p-2 rounded-lg">
+                        <textarea id="reply-input-${commentId}" class="w-full bg-transparent text-sm placeholder-gray-500 focus:outline-none" rows="2" placeholder="Balesin, kuy!"></textarea>
+                        <div class="text-right mt-1">
+                            <button data-action="add-comment" data-id="${currentPageParams.postId}" data-parent-id="${commentId}" class="bg-gray-800 hover:bg-black text-white font-bold py-1 px-3 rounded-full text-xs">Bales!</button>
+                        </div>
+                    </div>
+                `;
+                formContainer.classList.remove('hidden');
+                document.getElementById(`reply-input-${commentId}`).focus();
+            } else {
+                formContainer.classList.add('hidden');
+                formContainer.innerHTML = '';
+            }
+        }
+
+        function commentComponent(comment, userProfiles) {
+            const author = userProfiles[comment.authorId] || { name: 'Anonim', avatar: '' };
+            const commentDate = comment.createdAt ? new Date(comment.createdAt.seconds * 1000).toLocaleDateString('id-ID') : 'Baru saja';
+            const canDelete = currentUser.uid === comment.authorId;
+             const avatarHTML = author.avatar
+                ? `<img src="${author.avatar}" alt="${author.name}" class="w-8 h-8 rounded-full object-cover bg-gray-200 mt-1">`
+                : `<div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mt-1"><i data-feather="user" class="w-5 h-5 text-gray-500"></i></div>`;
+
+            return `
+                <div class="flex items-start space-x-3">
+                    ${avatarHTML}
+                    <div class="flex-1">
+                        <div class="bg-gray-100 rounded-lg p-3">
+                            <button data-action="go-to-page" data-page="profile" data-param='{"userId": "${comment.authorId}"}' class="font-semibold text-sm text-gray-800 text-left hover:underline">${author.name}</button>
+                            <p class="text-gray-700">${comment.content}</p>
+                        </div>
+                        <div class="flex items-center space-x-4 text-xs text-gray-500 mt-1 pl-1">
+                            <span>${commentDate}</span>
+                            <button data-action="show-reply-form" data-id="${comment.id}" class="font-semibold hover:text-gray-900">Bales</button>
+                            ${canDelete ? `<button data-action="delete-comment" data-id="${currentPageParams.postId}" data-parent-id="${comment.id}" class="font-semibold hover:text-red-500">Hapus</button>` : ''}
+                        </div>
+                        <div id="reply-form-${comment.id}" class="reply-form hidden mt-2"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function commentThreadComponent(thread, userProfiles) {
+            const repliesHTML = thread.replies.map(reply => commentThreadComponent(reply, userProfiles)).join('');
+            return `
+                <div class="space-y-4">
+                    ${commentComponent(thread, userProfiles)}
+                    <div class="pl-8 comment-thread space-y-4">
+                        ${repliesHTML}
+                    </div>
+                </div>
+            `;
+        }
+  
+function filterTimeline() {
+    const searchTerm = document.getElementById('search-input').value.toLowerCase();
+    const posts = document.querySelectorAll('#timeline-feed .post-card');
+    
+    posts.forEach(post => {
+        // Ambil semua data dari elemen post
+        const authorName = post.dataset.authorName || '';
+        const postContent = post.dataset.postContent || '';
+        const authorRank = post.dataset.authorRank || '';
+
+        // Cek apakah searchTerm ada di salah satu dari tiga data tersebut
+        const isVisible = authorName.includes(searchTerm) ||
+                          postContent.includes(searchTerm) ||
+                          authorRank.includes(searchTerm);
+
+        // Tampilkan atau sembunyikan post berdasarkan hasil pengecekan
+        post.style.display = isVisible ? 'flex' : 'none';
+    });
+} // <-- Kurung kurawal penutup untuk filterTimeline dipindahkan ke sini
+
+async function openSendTipModal(postId, authorId) {
+    if (authorId === currentUser.uid) {
+        showToast("Gabisa traktir diri sendiri, woy!", 'info');
+        return;
+    }
+    const recipientSnap = await getDoc(doc(db, "users", authorId));
+    if (!recipientSnap.exists()) {
+        showToast("User tidak ditemukan.", 'alert-circle');
+        return;
+    }
+    const recipient = recipientSnap.data();
+
+    const content = `
+        <p class="text-sm text-gray-600 mb-4">Mau traktir berapa biji kopi untuk <span class="font-bold">${recipient.name}</span>?</p>
+        <p class="text-xs text-gray-500 mb-2">Saldumu: ${currentUserProfile.balance} biji</p>
+       <input type="number" id="tip-amount-input" class="w-full bg-gray-100 border border-gray-300 p-2 rounded" placeholder="Jumlah biji kopi">
+    `;
+    showModal('Traktir Biji Kopi', content, [
+        { text: 'Batal', class: 'bg-gray-500 hover:bg-gray-600', action: 'close' },
+        { text: 'Kirim', class: 'bg-gray-800 hover:bg-black', action: (btn) => executeSendTip(postId, authorId, recipient.name, btn) }
+    ]);
+}
+
+        async function openLikersModal(postId) {
+            const postRef = doc(db, "posts", postId);
+            const postSnap = await getDoc(postRef);
+            if (!postSnap.exists()) {
+                showToast("Postingan tidak ditemukan.", "alert-circle");
+                return;
+            }
+            const post = postSnap.data();
+            const likers = post.likes || [];
+
+            if (likers.length === 0) {
+                showToast("Kasian, belum ada yang suka.", "info");
+                return;
+            }
+
+            const likerIds = [...new Set(likers)];
+            const profiles = await fetchMultipleUserProfiles(likerIds);
+
+            const likersHTML = likerIds.map(userId => {
+                const profile = profiles[userId];
+                if (!profile) return '';
+                const avatarHTML = profile.avatar
+                    ? `<img src="${profile.avatar}" alt="${profile.name}" class="w-8 h-8 rounded-full object-cover bg-gray-200">`
+                    : `<div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center"><i data-feather="user" class="w-5 h-5 text-gray-500"></i></div>`;
+
+                return `
+                    <button data-action="go-to-page" data-page="profile" data-param='{"userId": "${userId}"}' class="w-full flex items-center gap-3 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        ${avatarHTML}
+                        <span class="font-semibold">${profile.name}</span>
+                    </button>
+                `;
+            }).join('');
+
+            showModal('Disukai oleh', `<div class="space-y-2 max-h-60 overflow-y-auto">${likersHTML}</div>`);
+            feather.replace();
+        }
+
+        async function openTippersModal(postId) {
+            const postRef = doc(db, "posts", postId);
+            const postSnap = await getDoc(postRef);
+            if (!postSnap.exists()) {
+                showToast("Postingan tidak ditemukan.", "alert-circle");
+                return;
+            }
+            const post = postSnap.data();
+            const tippers = post.tips || [];
+
+            if (tippers.length === 0) {
+                showToast("Belum ada yang mentraktir.", "info");
+                return;
+            }
+
+            const tipperIds = [...new Set(tippers.map(tip => tip.tipperId))];
+            const profiles = await fetchMultipleUserProfiles(tipperIds);
+
+            const tippersHTML = tippers.map(tip => {
+                const profile = profiles[tip.tipperId];
+                if (!profile) return '';
+
+                const avatarHTML = profile.avatar
+                    ? `<img src="${profile.avatar}" alt="${profile.name}" class="w-8 h-8 rounded-full object-cover bg-gray-200">`
+                    : `<div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center"><i data-feather="user" class="w-5 h-5 text-gray-500"></i></div>`;
+
+                return `
+                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                        <button data-action="go-to-page" data-page="profile" data-param='{"userId": "${tip.tipperId}"}' class="flex items-center gap-3">
+                            ${avatarHTML}
+                            <span class="font-semibold">${profile.name}</span>
+                        </button>
+                        <span class="text-sm text-gray-600 flex items-center gap-1">
+                            ${tip.amount} <i data-feather="coffee" class="w-4 h-4"></i>
+                        </span>
+                    </div>
+                `;
+            }).join('');
+
+            showModal('Ditraktir oleh', `<div class="space-y-2 max-h-60 overflow-y-auto">${tippersHTML}</div>`);
+            feather.replace();
+        }
+
+        async function executeSendTip(postId, recipientId, recipientName, button) {
+            const amountInput = document.getElementById('tip-amount-input');
+            const amount = parseInt(amountInput.value);
+
+            if (isNaN(amount) || amount <= 0) {
+                showToast("Jumlahnya harus lebih dari 0.", 'alert-circle');
+                return;
+            }
+            if (amount > currentUserProfile.balance) {
+                showToast("Saldonya gak cukup, nih.", 'alert-circle');
+                return;
+            }
+
+            const senderRef = doc(db, "users", currentUser.uid);
+            const recipientRef = doc(db, "users", recipientId);
+            const postRef = doc(db, "posts", postId);
+
+            const originalContent = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = `<i data-feather="loader" class="animate-spin mx-auto"></i>`;
+            feather.replace();
+
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const senderDoc = await transaction.get(senderRef);
+                    if (!senderDoc.exists() || senderDoc.data().balance < amount) {
+                        throw "Saldo tidak mencukupi.";
+                    }
+                    
+                    transaction.update(senderRef, { balance: increment(-amount) });
+                    transaction.update(recipientRef, { balance: increment(amount) });
+                    transaction.update(postRef, { 
+                        tips: arrayUnion({ tipperId: currentUser.uid, amount: amount, timestamp: new Date() }) 
+                    });
+                });
+
+                await addDoc(collection(db, "notifications"), {
+                    recipientId: recipientId,
+                    senderId: currentUser.uid,
+                    senderName: currentUserProfile.name,
+                    type: 'tip',
+                    amount: amount,
+                    message: `${currentUserProfile.name} udah nraktir kamu ${amount} biji kopi. Asik!`,
+                    isRead: false,
+                    createdAt: serverTimestamp()
+                });
+
+                currentUserProfile.balance -= amount;
+
+                closeModal();
+                showToast(`Berhasil traktir ${amount} biji kopi ke ${recipientName}!`, 'check-circle');
+                if (currentPageId === 'profile') {
+                    showPage('profile', { userId: currentPageParams.userId || currentUser.uid }, true);
+                }
+
+            } catch (error) {
+                console.error("Error sending tip:", error);
+                showToast("Gagal traktir biji kopi. Coba lagi.", 'alert-circle');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalContent;
+            }
+        }
+
+        function confirmDeleteComment(postId, commentId) {
+            showModal(
+                'Hapus Komentar?',
+                'Yakin mau hapus komentar ini?',
+                [
+                    { text: 'Batal', class: 'bg-gray-500 hover:bg-gray-600', action: 'close' },
+                    { text: 'Hapus', class: 'bg-red-600 hover:bg-red-700', action: () => deleteComment(postId, commentId) },
+                ]
+            );
+        }
+
+        async function deleteComment(postId, commentId) {
+            try {
+                const commentRef = doc(db, "posts", postId, "comments", commentId);
+                await deleteDoc(commentRef);
+                const postRef = doc(db, "posts", postId);
+                await updateDoc(postRef, { commentCount: increment(-1) });
+                closeModal();
+                showToast('Komentar udah dihapus.', 'check-circle');
+            } catch (error) {
+                console.error("Error deleting comment:", error);
+                showToast('Gak bisa hapus komentar.', 'alert-circle');
+            }
+        }
+        
+        function toggleUserMenu(userId) {
+            const menu = document.getElementById(`user-menu-${userId}`);
+            if (!menu) return;
+
+            if (menu.classList.contains('hidden')) {
+                const isBlocked = currentUserProfile.blockedUsers?.includes(userId);
+                menu.innerHTML = `
+                    <button data-action="toggle-block-user" data-user-id="${userId}" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                        <i data-feather="${isBlocked ? 'user-check' : 'user-x'}" class="w-4 h-4 mr-2"></i>
+                        <span>${isBlocked ? 'Buka Blokir' : 'Blokir User Ini'}</span>
+                    </button>
+                    <button data-action="report-user" data-user-id="${userId}" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center">
+                        <i data-feather="flag" class="w-4 h-4 mr-2"></i>
+                        <span>Laporin User Ini</span>
+                    </button>
+                `;
+                feather.replace();
+                menu.classList.remove('hidden');
+            } else {
+                menu.classList.add('hidden');
+            }
+        }
+
+        async function toggleBlockUser(userId) {
+            const userRef = doc(db, "users", currentUser.uid);
+            const isBlocked = currentUserProfile.blockedUsers?.includes(userId);
+
+            try {
+                await updateDoc(userRef, {
+                    blockedUsers: isBlocked ? arrayRemove(userId) : arrayUnion(userId)
+                });
+
+                if (isBlocked) {
+                    currentUserProfile.blockedUsers = currentUserProfile.blockedUsers.filter(id => id !== userId);
+                } else {
+                    if (!currentUserProfile.blockedUsers) currentUserProfile.blockedUsers = [];
+                    currentUserProfile.blockedUsers.push(userId);
+                }
+
+                showToast(isBlocked ? 'Blokir dibuka.' : 'User berhasil diblokir.', 'check-circle');
+                
+                const menu = document.getElementById(`user-menu-${userId}`);
+                if(menu) menu.classList.add('hidden');
+                showPage(currentPageId, currentPageParams, true);
+
+            } catch (error) {
+                console.error("Error blocking user:", error);
+                showToast('Gagal memblokir pengguna.', 'alert-circle');
+            }
+        }
+
+        function openReportUserModal(userId) {
+            const content = `
+                <p class="text-sm text-gray-600 mb-4">Apa alasanmu melaporkan akun ini?</p>
+               <textarea id="report-reason-input" class="w-full bg-gray-100 border border-gray-300 p-2 rounded" rows="3" placeholder="Contoh: Spam, postingan aneh, dll."></textarea>
+            `;
+            showModal('Laporkan Pengguna', content, [
+                { text: 'Batal', class: 'bg-gray-500 hover:bg-gray-600', action: 'close' },
+                { text: 'Kirim Laporan', class: 'bg-red-600 hover:bg-red-700', action: (btn) => submitReport(userId, btn) }
+            ]);
+        }
+
+        async function submitReport(reportedUserId, button) {
+            const reasonInput = document.getElementById('report-reason-input');
+            const reason = reasonInput.value.trim();
+            if (!reason) {
+                showToast('Alasan laporan tidak boleh kosong.', 'alert-circle');
+                return;
+            }
+
+            const originalContent = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = `<i data-feather="loader" class="animate-spin mx-auto"></i>`;
+            feather.replace();
+
+            try {
+                await addDoc(collection(db, "reports"), {
+                    reporterId: currentUser.uid,
+                    reporterName: currentUserProfile.name,
+                    reportedUserId: reportedUserId,
+                    reason: reason,
+                    status: 'pending',
+                    createdAt: serverTimestamp()
+                });
+                closeModal();
+                showToast('Laporan terkirim. Terima kasih!', 'check-circle');
+            } catch (error) {
+                console.error("Error submitting report:", error);
+                showToast('Gagal mengirim laporan.', 'alert-circle');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalContent;
+            }
+        }
+
+         async function renderKedaiDetail(container, shopId) {
+            const shopRef = doc(db, "coffeeShops", shopId);
+            logVisitor(shopId);
+            const unsubscribe = onSnapshot(shopRef, async (docSnap) => {
+                if (!docSnap.exists()) {
+                    container.innerHTML = emptyStateComponent('map-pin', 'Kedai Kopi Hilang', 'Mungkin kedai ini sudah pindah atau tutup.');
+                    feather.replace();
+                    return;
+                }
+                const shop = { id: docSnap.id, ...docSnap.data() };
+                const isOwner = currentUser.uid === shop.ownerId;
+
+                const facilitiesMap = {
+                    'wifi': { icon: 'wifi', text: 'WiFi Gratis' },
+                    'musholla': { icon: 'moon', text: 'Musholla' },
+                    'stopkontak': { icon: 'zap', text: 'Banyak Stopkontak' },
+                    'parkir_motor': { icon: 'truck', text: 'Parkir Motor' },
+                    'parkir_mobil': { icon: 'briefcase', text: 'Parkir Mobil' },
+                };
+
+                const atmosphereMap = {
+                    'tenang': { icon: 'moon', text: 'Tenang' },
+                    'santai': { icon: 'coffee', text: 'Santai' },
+                    'cocok_untuk_kerja': { icon: 'laptop', text: 'Cocok untuk Kerja' },
+                    'pas_buat_nongkrong': { icon: 'users', text: 'Asik Buat Nongkrong' },
+                    'instagramable': { icon: 'camera', text: 'Instagramable' },
+                    'cocok_untuk_sendiri': { icon: 'user', text: 'Nyaman Sendirian' },
+                };
+
+                const facilitiesHTML = shop.facilities && shop.facilities.length > 0
+                    ? shop.facilities.map(key => `
+                        <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-lg">
+                            <i data-feather="${facilitiesMap[key]?.icon || 'check-circle'}" class="w-5 h-5 text-gray-600"></i>
+                            <span class="text-gray-800">${facilitiesMap[key]?.text || key}</span>
+                        </div>
+                    `).join('')
+                    : '<p class="text-sm text-gray-500">Belum ada info fasilitas.</p>';
+                    
+                const atmosphereHTML = shop.atmosphere && shop.atmosphere.length > 0
+                    ? shop.atmosphere.map(key => `
+                        <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-lg">
+                            <i data-feather="${atmosphereMap[key]?.icon || 'sun'}" class="w-5 h-5 text-gray-600"></i>
+                            <span class="text-gray-800">${atmosphereMap[key]?.text || key}</span>
+                        </div>
+                    `).join('')
+                    : '<p class="text-sm text-gray-500">Belum ada info suasana.</p>';
+
+                const menuHTML = shop.menu && shop.menu.length > 0
+                    ? shop.menu.map(category => `
+                        <div class="mb-4">
+                            <h4 class="font-bold text-lg text-gray-800 mb-2">${category.name}</h4>
+                            <div class="space-y-2">
+                                ${category.items.map(item => `
+                                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                                        ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}" class="w-16 h-16 object-cover rounded-md flex-shrink-0 bg-gray-200">` : ''}
+                                        <div class="flex-grow">
+                                            <p class="font-semibold text-gray-800">${item.name}</p>
+                                            <p class="text-xs text-gray-500 mt-1">${item.description || ''}</p>
+                                        </div>
+                                        <div class="flex-shrink-0 font-semibold text-gray-700 text-sm">
+                                            Rp ${new Intl.NumberFormat('id-ID').format(item.price)}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('')
+                    : '<p class="text-sm text-gray-500 text-center py-4">Menu belum di-upload sama pemilik kedai.</p>';
+
+                const infoHTML = shop.additionalInfo
+                    ? `<div class="text-sm max-w-none text-gray-700 leading-relaxed">${shop.additionalInfo.replace(/\n/g, '<br>')}</div>`
+                    : '<p class="text-sm text-gray-500">Belum ada info tambahan dari pemilik kedai.</p>';
+
+                container.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="bg-white rounded-lg shadow overflow-hidden">
+                            <img src="${shop.imageUrl || 'https://placehold.co/600x400/111827/f3f4f6?text=Sampit+Ngopi'}" alt="Foto ${shop.name}" class="w-full h-48 object-cover">
+                            <div class="p-4">
+                                <h2 class="text-2xl font-bold font-brand">${shop.name}</h2>
+                                <p class="text-gray-600">${shop.address}, ${shop.city}</p>
+                                <div class="flex items-center text-sm text-gray-500 mt-2">
+                                    <i data-feather="star" class="w-4 h-4 mr-1 fill-current text-yellow-500"></i>
+                                    <span><b>${shop.rating?.toFixed(1) || 'N/A'}</b> (${shop.reviewCount || 0} bacotan)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-lg shadow">
+                            <div class="flex border-b" id="info-tabs">
+                                <button data-tab="detail" class="info-tab-btn flex-1 p-3 font-semibold text-sm border-b-2 border-gray-800 text-gray-800">Info Detail</button>
+                                <button data-tab="menu" class="info-tab-btn flex-1 p-3 font-semibold text-sm border-b-2 border-transparent text-gray-500">Menu</button>
+                            </div>
+                            <div class="p-4">
+                                <div id="tab-content-detail" class="info-tab-panel space-y-4">
+                                     <div>
+                                        <h3 class="font-semibold text-gray-800 mb-2">Fasilitas</h3>
+                                        <div class="grid grid-cols-2 gap-2">${facilitiesHTML}</div>
+                                    </div>
+                                     <div>
+                                        <h3 class="font-semibold text-gray-800 mb-2">Suasana</h3>
+                                        <div class="grid grid-cols-2 gap-2">${atmosphereHTML}</div>
+                                    </div>
+                                     <div class="pt-4 border-t">
+                                        <h3 class="font-semibold text-gray-800 mb-2">Info Lainnya</h3>
+                                        ${infoHTML}
+                                    </div>
+                                </div>
+                                <div id="tab-content-menu" class="info-tab-panel hidden">${menuHTML}</div>
+                            </div>
+                        </div>
+
+                        ${(isOwner) ? `
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h3 class="font-semibold mb-2">Panel Juragan</h3>
+                            <div class="flex gap-2">
+                                <button data-action="open-edit-shop-modal" data-shop-id="${shop.id}" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 p-2 rounded-lg text-sm flex items-center justify-center transition-colors">
+                                    <i data-feather="edit-2" class="w-4 h-4 mr-2"></i> Edit Info
+                                </button>
+                                <button data-action="delete-shop" data-id="${shop.id}" class="flex-1 bg-red-600 text-white p-2 rounded-lg text-sm hover:bg-red-700">Hapus Kedai</button>
+                            </div>
+                        </div>
+                        ` : ''}
+
+                        <div class="bg-white p-4 rounded-lg shadow arena-bacot">
+                            <h3 class="font-semibold mb-4 text-xl font-brand text-center">Arena Adu Bacot</h3>
+                            <div id="review-form" class="mb-6 bg-gray-50 p-4 rounded-lg border">
+                                <h4 class="font-medium mb-2 text-center">Gimana menurutmu kedai ini?</h4>
+                                <div class="star-rating flex justify-center mb-3 text-3xl" id="add-review-stars" data-rating="0">
+                                    <i data-feather="star" data-value="1"></i>
+                                    <i data-feather="star" data-value="2"></i>
+                                    <i data-feather="star" data-value="3"></i>
+                                    <i data-feather="star" data-value="4"></i>
+                                    <i data-feather="star" data-value="5"></i>
+                                </div>
+                                <textarea id="review-text" class="w-full bg-white border p-2 rounded-md" placeholder="Spill unek-unekmu di sini, jangan ditahan!"></textarea>
+                                <button data-action="add-review" data-id="${shop.id}" class="w-full bg-gray-800 text-white mt-2 p-2 rounded-lg hover:bg-black font-semibold">Lempar Bacotan!</button>
+                            </div>
+                            <div id="reviews-list" class="space-y-4">${loadingComponent()}</div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('info-tabs').addEventListener('click', e => {
+                    const button = e.target.closest('.info-tab-btn');
+                    if (!button) return;
+
+                    document.querySelectorAll('.info-tab-btn').forEach(btn => {
+                        btn.classList.remove('text-gray-800', 'border-gray-800');
+                        btn.classList.add('text-gray-500', 'border-transparent');
+                    });
+                    button.classList.add('text-gray-800', 'border-gray-800');
+                    button.classList.remove('text-gray-500', 'border-transparent');
+                    
+                    document.querySelectorAll('.info-tab-panel').forEach(panel => panel.classList.add('hidden'));
+                    document.getElementById(`tab-content-${button.dataset.tab}`).classList.remove('hidden');
+                });
+                
+                feather.replace();
+                setupStarRating('add-review-stars');
+                renderReviews(shop.id, shop.ownerId);
+            });
+            unsubscribeListeners.push(unsubscribe);
+        }
+        
+        async function logVisitor(shopId) {
+            if (!currentUser) return;
+            try {
+                const shopRef = doc(db, "coffeeShops", shopId);
+                await updateDoc(shopRef, {
+                    visitors: arrayUnion(currentUser.uid)
+                });
+            } catch (error) {
+                console.error("Error logging visitor:", error);
+            }
+        }
+        
+        function openOwnerRequestModal() {
+            const content = `
+                <p class="text-sm text-gray-600 mb-4">
+                    Biar gak ada yang ngaku-ngaku, kami perlu verifikasi data kedaimu, Bos.
+                </p>
+               <div class="space-y-4">
+                    <div>
+                        <label for="request-shop-name" class="block text-sm font-medium text-gray-700 mb-1">Nama Kedai Kopi</label>
+                        <input type="text" id="request-shop-name" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md">
+                    </div>
+                    <div>
+                        <label for="request-shop-address" class="block text-sm font-medium text-gray-700 mb-1">Alamat Kedai</label>
+                        <input type="text" id="request-shop-address" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md">
+                    </div>
+                    <div>
+                        <label for="request-shop-phone" class="block text-sm font-medium text-gray-700 mb-1">Nomor WhatsApp</label>
+                        <input type="tel" id="request-shop-phone" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md">
+                    </div>
+                </div>
+            `;
+            showModal('Daftar Jadi Juragan Kedai', content, [
+                { text: 'Batal', class: 'bg-gray-500 hover:bg-gray-600', action: 'close' },
+                { text: 'Kirim Permintaan', class: 'bg-gray-800 hover:bg-black', action: (btn) => submitOwnerRequest(btn) }
+            ]);
+        }
+        
+        async function submitOwnerRequest(button) { 
+            const shopName = document.getElementById('request-shop-name').value.trim();
+            const shopAddress = document.getElementById('request-shop-address').value.trim();
+            const shopPhone = document.getElementById('request-shop-phone').value.trim();
+
+            if (!shopName || !shopAddress || !shopPhone) {
+                showToast('Semua kolom wajib diisi.', 'alert-circle');
+                return;
+            }
+
+            const originalContent = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = `<i data-feather="loader" class="animate-spin mx-auto"></i>`;
+            feather.replace();
+
+            try {
+                await addDoc(collection(db, "requests"), {
+                    requesterId: currentUser.uid,
+                    requesterName: currentUserProfile.name,
+                    type: 'owner',
+                    status: 'pending',
+                    shopDetails: {
+                        name: shopName,
+                        address: shopAddress,
+                        phone: shopPhone
+                    },
+                    createdAt: serverTimestamp()
+                });
+                closeModal();
+                showToast('Request terkirim! Admin bakal ngecek secepatnya.', 'check-circle');
+            } catch (error) {
+                console.error("Error submitting owner request:", error);
+                showToast('Gagal mengirim permintaan.', 'alert-circle');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalContent;
+            }
+        }
+        
+         async function openAddShopModal() { 
+            if (citiesCache.length === 0) {
+                const citiesSnap = await getDocs(query(collection(db, 'cities'), orderBy('name')));
+                citiesCache = citiesSnap.docs.map(doc => doc.data().name);
+            }
+            const cityOptions = citiesCache.map(c => `<option value="${c}">${c}</option>`).join('');
+
+            const facilityOptions = [
+                { value: 'wifi', label: 'WiFi' },
+                { value: 'musholla', label: 'Musholla' },
+                { value: 'stopkontak', label: 'Stopkontak' },
+                { value: 'parkir_motor', label: 'Parkir Motor' },
+                { value: 'parkir_mobil', label: 'Parkir Mobil' },
+            ];
+            const atmosphereOptions = [
+                { value: 'tenang', label: 'Tenang' },
+                { value: 'santai', label: 'Santai' },
+                { value: 'cocok_untuk_kerja', label: 'Cocok untuk Kerja' },
+                { value: 'pas_buat_nongkrong', label: 'Pas Buat Nongkrong' },
+                { value: 'instagramable', label: 'Instagramable' },
+                { value: 'cocok_untuk_sendiri', label: 'Cocok untuk Sendiri' },
+            ];
+
+            const facilityCheckboxes = facilityOptions.map(opt => `
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" name="add-facility" value="${opt.value}" class="rounded">
+                    <span class="text-sm">${opt.label}</span>
+                </label>
+            `).join('');
+            
+            const atmosphereCheckboxes = atmosphereOptions.map(opt => `
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" name="add-atmosphere" value="${opt.value}" class="rounded">
+                    <span class="text-sm">${opt.label}</span>
+                </label>
+            `).join('');
+
+            const content = `
+                <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+                    <div>
+                        <label for="shop-name" class="block text-sm font-medium text-gray-700 mb-1">Nama Kedai Kopi</label>
+                        <input type="text" id="shop-name" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md">
+                    </div>
+                    <div>
+                        <label for="shop-address" class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+                        <input type="text" id="shop-address" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md">
+                    </div>
+                    <div>
+                        <label for="shop-city" class="block text-sm font-medium text-gray-700 mb-1">Kota</label>
+                        <select id="shop-city" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md">${cityOptions}</select>
+                    </div>
+                    <div>
+                        <label for="shop-image-url" class="block text-sm font-medium text-gray-700 mb-1">URL Gambar</label>
+                        <input type="url" id="shop-image-url" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md" placeholder="https://...">
+                    </div>
+                    <div class="border-t pt-4">
+                        <h4 class="text-md font-semibold text-gray-800 mb-2">Info Tambahan</h4>
+                        <div class="space-y-4">
+                             <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Fasilitas</label>
+                                <div class="grid grid-cols-2 gap-2">${facilityCheckboxes}</div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Suasana</label>
+                                <div class="grid grid-cols-2 gap-2">${atmosphereCheckboxes}</div>
+                            </div>
+                             <div>
+                                <label for="shop-info" class="block text-sm font-medium text-gray-700 mb-1">Info Lainnya</label>
+                                <textarea id="shop-info" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md" rows="3" placeholder="Info tambahan soal kedai, promo, dll."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            showModal('Daftarin Kedai Baru', content, [
+                { text: 'Batal', class: 'bg-gray-500 hover:bg-gray-600', action: 'close' },
+                { text: 'Daftarkan', class: 'bg-gray-800 hover:bg-black', action: (btn) => addNewShop(btn) }
+            ]);
+        }
+
+        async function addNewShop(button) { 
+            const name = document.getElementById('shop-name').value.trim();
+            const address = document.getElementById('shop-address').value.trim();
+            const city = document.getElementById('shop-city').value;
+            const imageUrl = document.getElementById('shop-image-url').value.trim();
+            const additionalInfo = document.getElementById('shop-info').value.trim();
+            
+            const facilities = Array.from(document.querySelectorAll('input[name="add-facility"]:checked')).map(el => el.value);
+            const atmosphere = Array.from(document.querySelectorAll('input[name="add-atmosphere"]:checked')).map(el => el.value);
+
+            if (!name || !address || !city) {
+                showToast('Nama, alamat, dan kota wajib diisi.', 'alert-circle');
+                return;
+            }
+
+            const originalContent = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = `<i data-feather="loader" class="animate-spin mx-auto"></i>`;
+            feather.replace();
+
+            try {
+                await addDoc(collection(db, "coffeeShops"), {
+                    ownerId: currentUser.uid,
+                    name,
+                    address,
+                    city,
+                    imageUrl,
+                    rating: 0,
+                    reviewCount: 0,
+                    createdAt: serverTimestamp(),
+                    facilities,
+                    atmosphere,
+                    additionalInfo,
+                    menu: []
+                });
+                closeModal();
+                showToast('Kedai kopi berhasil didaftarkan!', 'check-circle');
+                showPage('coffee-shop', {}, true);
+            } catch (error) {
+                console.error("Error adding new shop:", error);
+                showToast('Gagal mendaftarkan kedai kopi.', 'alert-circle');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalContent;
+            }
+        }
+        
+        async function openEditShopModal(shopId) {
+            const shopRef = doc(db, "coffeeShops", shopId);
+            const shopSnap = await getDoc(shopRef);
+            if (!shopSnap.exists()) {
+                showToast("Data kedai kopi tidak ditemukan.", "alert-circle");
+                return;
+            }
+            const shop = shopSnap.data();
+
+            if (citiesCache.length === 0) {
+                const citiesSnap = await getDocs(query(collection(db, 'cities'), orderBy('name')));
+                citiesCache = citiesSnap.docs.map(doc => doc.data().name);
+            }
+            const cityOptions = citiesCache.map(c => `<option value="${c}" ${shop.city === c ? 'selected' : ''}>${c}</option>`).join('');
+
+            const facilityOptions = [
+                { value: 'wifi', label: 'WiFi' },
+                { value: 'musholla', label: 'Musholla' },
+                { value: 'stopkontak', label: 'Stopkontak' },
+                { value: 'parkir_motor', label: 'Parkir Motor' },
+                { value: 'parkir_mobil', label: 'Parkir Mobil' },
+            ];
+            const atmosphereOptions = [
+                { value: 'tenang', label: 'Tenang' },
+                { value: 'santai', label: 'Santai' },
+                { value: 'cocok_untuk_kerja', label: 'Cocok untuk Kerja' },
+                { value: 'pas_buat_nongkrong', label: 'Pas Buat Nongkrong' },
+                { value: 'instagramable', label: 'Instagramable' },
+                { value: 'cocok_untuk_sendiri', label: 'Cocok untuk Sendiri' },
+            ];
+
+            const facilityCheckboxes = facilityOptions.map(opt => {
+                const isChecked = shop.facilities && shop.facilities.includes(opt.value) ? 'checked' : '';
+                return `
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" name="edit-facility" value="${opt.value}" class="rounded" ${isChecked}>
+                        <span class="text-sm">${opt.label}</span>
+                    </label>
+                `;
+            }).join('');
+            
+            const atmosphereCheckboxes = atmosphereOptions.map(opt => {
+                const isChecked = shop.atmosphere && shop.atmosphere.includes(opt.value) ? 'checked' : '';
+                return `
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" name="edit-atmosphere" value="${opt.value}" class="rounded" ${isChecked}>
+                        <span class="text-sm">${opt.label}</span>
+                    </label>
+                `;
+            }).join('');
+            
+             const menuEditorHTML = `
+                <div class="border-t pt-4 mt-4">
+                    <h4 class="text-md font-semibold text-gray-800 mb-2">Editor Menu</h4>
+                    <div id="menu-editor-container" class="space-y-3">
+                        ${(shop.menu || []).map((category, catIndex) => `
+                            <div class="p-3 bg-gray-200 rounded-lg menu-category-group">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <input type="text" class="flex-grow bg-white border p-1 rounded-md text-sm font-semibold" placeholder="Nama Kategori (cth: Kopi, Makanan)" value="${category.name || ''}">
+                                    <button class="remove-category-btn text-red-500 hover:text-red-700 p-1"><i data-feather="x-circle" class="w-4 h-4"></i></button>
+                                </div>
+                                <div class="space-y-2 menu-items-container">
+                                    ${(category.items || []).map(item => `
+                                        <div class="p-2 bg-white rounded menu-item-group space-y-2">
+                                            <div class="flex items-center gap-2">
+                                                <input type="text" class="flex-grow bg-gray-50 border p-1 rounded-md text-sm" placeholder="Nama Produk" value="${item.name || ''}">
+                                                <input type="number" class="w-28 bg-gray-50 border p-1 rounded-md text-sm" placeholder="Harga (cth: 15000)" value="${item.price || ''}">
+                                                <button class="remove-item-btn text-red-500 hover:text-red-700 p-1"><i data-feather="minus-circle" class="w-4 h-4"></i></button>
+                                            </div>
+                                            <input type="url" class="w-full bg-gray-50 border p-1 rounded-md text-sm" placeholder="URL Gambar Produk (Opsional)" value="${item.imageUrl || ''}">
+                                            <textarea class="w-full bg-gray-50 border p-1 rounded-md text-sm" rows="2" placeholder="Deskripsi singkat produk (Opsional)">${item.description || ''}</textarea>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                 <button class="add-menu-item-btn mt-2 text-sm text-gray-700 font-semibold hover:text-black">+ Tambah Item</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button id="add-menu-category-btn" class="mt-3 text-sm font-bold text-gray-800 hover:text-black">+ Tambah Kategori Baru</button>
+                </div>
+            `;
+
+            const content = `
+                <div class="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+                    <div>
+                        <label for="edit-shop-name" class="block text-sm font-medium text-gray-700 mb-1">Nama Kedai Kopi</label>
+                        <input type="text" id="edit-shop-name" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md" value="${shop.name || ''}">
+                    </div>
+                    <div>
+                        <label for="edit-shop-address" class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+                        <input type="text" id="edit-shop-address" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md" value="${shop.address || ''}">
+                    </div>
+                    <div>
+                        <label for="edit-shop-city" class="block text-sm font-medium text-gray-700 mb-1">Kota</label>
+                        <select id="edit-shop-city" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md">${cityOptions}</select>
+                    </div>
+                    <div>
+                        <label for="edit-shop-image-url" class="block text-sm font-medium text-gray-700 mb-1">URL Gambar</label>
+                        <input type="url" id="edit-shop-image-url" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md" placeholder="https://..." value="${shop.imageUrl || ''}">
+                    </div>
+                    <div class="border-t pt-4">
+                        <h4 class="text-md font-semibold text-gray-800 mb-2">Info Tambahan</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Fasilitas</label>
+                                <div class="grid grid-cols-2 gap-2">${facilityCheckboxes}</div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Suasana</label>
+                                <div class="grid grid-cols-2 gap-2">${atmosphereCheckboxes}</div>
+                            </div>
+                             <div>
+                                <label for="edit-shop-info" class="block text-sm font-medium text-gray-700 mb-1">Info Lainnya</label>
+                                <textarea id="edit-shop-info" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md" rows="4" placeholder="Info tambahan soal kedai, promo, dll.">${shop.additionalInfo || ''}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    ${menuEditorHTML}
+                </div>
+            `;
+            showModal('Edit Detail Kedai Kopi', content, [
+                { text: 'Batal', class: 'bg-gray-500', action: 'close' },
+                { text: 'Simpan Perubahan', class: 'bg-gray-800', action: (btn) => updateShop(shopId, btn) }
+            ]);
+            feather.replace();
+
+            const menuContainer = document.getElementById('menu-editor-container');
+            document.getElementById('add-menu-category-btn').addEventListener('click', () => {
+                const categoryNode = document.createElement('div');
+                categoryNode.className = 'p-3 bg-gray-200 rounded-lg menu-category-group';
+                categoryNode.innerHTML = `
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="text" class="flex-grow bg-white border p-1 rounded-md text-sm font-semibold" placeholder="Nama Kategori (cth: Kopi, Makanan)" value="">
+                        <button class="remove-category-btn text-red-500 hover:text-red-700 p-1"><i data-feather="x-circle" class="w-4 h-4"></i></button>
+                    </div>
+                    <div class="space-y-2 menu-items-container"></div>
+                    <button class="add-menu-item-btn mt-2 text-sm text-gray-700 font-semibold hover:text-black">+ Tambah Item</button>`;
+                menuContainer.appendChild(categoryNode);
+                feather.replace();
+            });
+
+            menuContainer.addEventListener('click', e => {
+                const addBtn = e.target.closest('.add-menu-item-btn');
+                const removeCatBtn = e.target.closest('.remove-category-btn');
+                const removeItemBtn = e.target.closest('.remove-item-btn');
+                
+                if (addBtn) {
+                    const itemsContainer = addBtn.previousElementSibling;
+                    const itemNode = document.createElement('div');
+                    itemNode.className = 'p-2 bg-white rounded menu-item-group space-y-2';
+                    itemNode.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <input type="text" class="flex-grow bg-gray-50 border p-1 rounded-md text-sm" placeholder="Nama Produk" value="">
+                            <input type="number" class="w-28 bg-gray-50 border p-1 rounded-md text-sm" placeholder="Harga (cth: 15000)" value="">
+                            <button class="remove-item-btn text-red-500 hover:text-red-700 p-1"><i data-feather="minus-circle" class="w-4 h-4"></i></button>
+                        </div>
+                        <input type="url" class="w-full bg-gray-50 border p-1 rounded-md text-sm" placeholder="URL Gambar Produk (Opsional)" value="">
+                        <textarea class="w-full bg-gray-50 border p-1 rounded-md text-sm" rows="2" placeholder="Deskripsi singkat produk (Opsional)"></textarea>`;
+                    itemsContainer.appendChild(itemNode);
+                     feather.replace();
+                }
+                if (removeCatBtn) removeCatBtn.closest('.menu-category-group').remove();
+                if (removeItemBtn) removeItemBtn.closest('.menu-item-group').remove();
+            });
+        }
+
+        async function updateShop(shopId, button) {
+            const originalContent = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = `<i data-feather="loader" class="animate-spin mx-auto"></i>`;
+            feather.replace();
+
+            const name = document.getElementById('edit-shop-name').value.trim();
+            const address = document.getElementById('edit-shop-address').value.trim();
+            const city = document.getElementById('edit-shop-city').value;
+            const imageUrl = document.getElementById('edit-shop-image-url').value.trim();
+            const additionalInfo = document.getElementById('edit-shop-info').value.trim();
+            
+            const facilities = Array.from(document.querySelectorAll('input[name="edit-facility"]:checked')).map(el => el.value);
+            const atmosphere = Array.from(document.querySelectorAll('input[name="edit-atmosphere"]:checked')).map(el => el.value);
+            
+            const menuData = [];
+            document.querySelectorAll('.menu-category-group').forEach(catGroup => {
+                const categoryName = catGroup.querySelector('input[placeholder*="Nama Kategori"]').value.trim();
+                if (!categoryName) return;
+                
+                const items = [];
+                catGroup.querySelectorAll('.menu-item-group').forEach(itemGroup => {
+                    const itemName = itemGroup.querySelector('input[placeholder="Nama Produk"]').value.trim();
+                    const itemPrice = parseInt(itemGroup.querySelector('input[placeholder*="Harga"]').value);
+                    const itemImageUrl = itemGroup.querySelector('input[placeholder*="URL Gambar"]').value.trim();
+                    const itemDescription = itemGroup.querySelector('textarea[placeholder*="Deskripsi"]').value.trim();
+
+                    if (itemName && !isNaN(itemPrice)) {
+                        items.push({
+                            name: itemName,
+                            price: itemPrice,
+                            imageUrl: itemImageUrl,
+                            description: itemDescription
+                        });
+                    }
+                });
+
+                if (items.length > 0) {
+                    menuData.push({ name: categoryName, items: items });
+                }
+            });
+
+            if (!name || !address || !city) {
+                showToast('Nama, alamat, dan kota wajib diisi.', 'alert-circle');
+                button.disabled = false;
+                button.innerHTML = originalContent;
+                return;
+            }
+
+            try {
+                const shopRef = doc(db, "coffeeShops", shopId);
+                await updateDoc(shopRef, {
+                    name,
+                    address,
+                    city,
+                    imageUrl,
+                    facilities,
+                    atmosphere,
+                    additionalInfo,
+                    menu: menuData,
+                });
+                closeModal();
+                showToast('Detail kedai kopi berhasil diperbarui!', 'check-circle');
+            } catch (error) {
+                console.error("Error updating shop:", error);
+                showToast('Gagal memperbarui detail. Coba lagi nanti.', 'alert-circle');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalContent;
+            }
+        }
+
+        function confirmDeleteShop(shopId) {
+            showModal(
+                'Hapus Kedai Kopi?',
+                'Semua data, termasuk bacotan, akan hilang selamanya. Yakin nih?',
+                [
+                    { text: 'Batal', class: 'bg-gray-500', action: 'close' },
+                    { text: 'Hapus Permanen', class: 'bg-red-700', action: () => deleteShop(shopId) }
+                ]
+            );
+        }
+
+        async function deleteShop(shopId) {
+            try {
+                await deleteDoc(doc(db, "coffeeShops", shopId));
+                closeModal();
+                showToast('Kedai kopi berhasil dihapus.', 'check-circle');
+                goBack();
+            } catch (error) {
+                console.error("Error deleting shop:", error);
+                showToast('Gagal menghapus kedai.', 'alert-circle');
+            }
+        }
+        
+        async function openPurchaseModal() {
+            const packages = [
+                { rp: 10000, beans: 100 },
+                { rp: 25000, beans: 250 },
+                { rp: 50000, beans: 500 },
+                { rp: 100000, beans: 1000 }
+            ];
+
+            const packagesHTML = packages.map(p => `
+                <button data-action="submit-purchase-request" data-amount="${p.beans}" class="w-full text-left p-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                    <span class="font-semibold">${p.beans.toLocaleString('id-ID')} Biji Kopi</span>
+                    <span class="text-sm text-gray-600">- Rp ${p.rp.toLocaleString('id-ID')}</span>
+                </button>
+            `).join('');
+
+            const content = `
+                <p class="text-sm text-gray-600 mb-4">
+                    Pilih paket buat nambah saldo biji kopimu.
+                    <br><b>Harga: 10 Biji Kopi = Rp 1.000</b>
+                </p>
+                <div class="space-y-2 mb-4">
+                    ${packagesHTML}
+                </div>
+                 <div>
+                    <label for="purchase-wa-number" class="block text-sm font-medium text-gray-700 mb-1">Nomor WhatsApp</label>
+                    <input type="tel" id="purchase-wa-number" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md" placeholder="Contoh: 08123456789">
+                </div>
+            `;
+            showModal('Beli Biji Kopi', content);
+        }
+
+        async function submitPurchaseRequest(target) {
+            const amount = parseInt(target.dataset.amount);
+            const waNumber = document.getElementById('purchase-wa-number').value.trim();
+
+            if (isNaN(amount) || amount <= 0) return;
+            if (!waNumber) {
+                showToast('Nomor WhatsApp wajib diisi.', 'alert-circle');
+                return;
+            }
+
+            const originalContent = target.innerHTML;
+            target.disabled = true;
+            target.innerHTML = `<i data-feather="loader" class="animate-spin mx-auto"></i>`;
+            feather.replace();
+
+            try {
+                await addDoc(collection(db, "requests"), {
+                    requesterId: currentUser.uid,
+                    requesterName: currentUserProfile.name,
+                    type: 'purchase',
+                    amount: amount,
+                    waNumber: waNumber,
+                    status: 'pending',
+                    createdAt: serverTimestamp()
+                });
+                closeModal();
+                showToast('Request pembelian terkirim! Admin bakal ngecek.', 'check-circle');
+            } catch (error) {
+                console.error("Error submitting purchase request:", error);
+                showToast('Gagal mengirim request pembelian.', 'alert-circle');
+            } finally {
+                target.disabled = false;
+                target.innerHTML = originalContent;
+            }
+        }
+        
+        function openWithdrawalModal() {
+            const content = `
+                <p class="text-sm text-gray-600 mb-4">
+                     Saldonya akan diubah ke Rupiah (10 Biji Kopi = Rp 1.000). Isi detail rekening buat proses pencairan.
+                </p>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Jumlah Pencairan</label>
+                        <input type="number" id="withdrawal-amount" class="w-full bg-gray-100 border p-2 rounded-md" value="${currentUserProfile.balance}" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Nama Bank</label>
+                        <input type="text" id="withdrawal-bank" class="w-full bg-gray-100 border p-2 rounded-md" placeholder="Contoh: BCA, Mandiri">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Nomor Rekening</label>
+                        <input type="number" id="withdrawal-account-number" class="w-full bg-gray-100 border p-2 rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Nama Pemilik Rekening</label>
+                        <input type="text" id="withdrawal-account-name" class="w-full bg-gray-100 border p-2 rounded-md">
+                    </div>
+                </div>
+            `;
+            showModal('Cairkan Biji Kopi', content, [
+                { text: 'Batal', class: 'bg-gray-500', action: 'close' },
+                { text: 'Kirim Permintaan', class: 'bg-green-600', action: (btn) => submitWithdrawalRequest(btn) }
+            ]);
+        }
+        
+        async function submitWithdrawalRequest(button) {
+            const amount = parseInt(document.getElementById('withdrawal-amount').value);
+            const bank = document.getElementById('withdrawal-bank').value.trim();
+            const accountNumber = document.getElementById('withdrawal-account-number').value.trim();
+            const accountName = document.getElementById('withdrawal-account-name').value.trim();
+
+            if (!bank || !accountNumber || !accountName) {
+                showToast('Semua detail rekening wajib diisi.', 'alert-circle');
+                return;
+            }
+            if (currentUserProfile.balance < 5000) {
+                showToast('Saldo tidak cukup untuk pencairan.', 'alert-circle');
+                return;
+            }
+
+            const originalContent = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = `<i data-feather="loader" class="animate-spin mx-auto"></i>`;
+            feather.replace();
+
+            try {
+                await addDoc(collection(db, "requests"), {
+                    requesterId: currentUser.uid,
+                    requesterName: currentUserProfile.name,
+                    type: 'withdrawal',
+                    amount: amount,
+                    bankDetails: {
+                        bank,
+                        accountNumber,
+                        accountName
+                    },
+                    status: 'pending',
+                    createdAt: serverTimestamp()
+                });
+                closeModal();
+                showToast('Permintaan pencairan terkirim! Admin akan proses.', 'check-circle');
+            } catch (error) {
+                console.error("Error submitting withdrawal request:", error);
+                showToast('Gagal mengirim permintaan pencairan.', 'alert-circle');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalContent;
+            }
+        }
+        
+        function listenForNotifications() {
+            if (!currentUser) return;
+            const q = query(collection(db, "notifications"), where("recipientId", "==", currentUser.uid));
+            const unsubscribe = onSnapshot(q, (snapshot) => {
+                const unreadNotifs = snapshot.docs.some(doc => !doc.data().isRead);
+                const bellButton = document.querySelector('[data-action="open-notifications-modal"]');
+                if (bellButton) {
+                    const existingDot = bellButton.querySelector('.notification-dot');
+                    if (unreadNotifs && !existingDot) {
+                        const dot = document.createElement('div');
+                        dot.className = 'notification-dot';
+                        bellButton.appendChild(dot);
+                    } else if (!unreadNotifs && existingDot) {
+                        existingDot.remove();
+                    }
+                }
+            });
+            unsubscribeListeners.push(unsubscribe);
+        }
+
+        async function openNotificationsModal() {
+            const q = query(collection(db, "notifications"), where("recipientId", "==", currentUser.uid), orderBy("createdAt", "desc"));
+            const snapshot = await getDocs(q);
+
+            let contentHTML = '';
+            if (snapshot.empty) {
+                contentHTML = emptyStateComponent('bell-off', 'Notifikasi Kosong', 'Belum ada kabar baru, nih.');
+            } else {
+                contentHTML = '<div class="space-y-3 max-h-80 overflow-y-auto">';
+                const batch = writeBatch(db);
+                
+                snapshot.docs.forEach(notifDoc => {
+                    const notif = { id: notifDoc.id, ...notifDoc.data() };
+                    contentHTML += `
+                        <div class="p-3 rounded-lg ${notif.isRead ? 'bg-gray-100' : 'bg-blue-100'}">
+                            <p class="text-sm text-gray-800">${notif.message}</p>
+                            <p class="text-xs text-gray-500 mt-1">${new Date(notif.createdAt?.seconds * 1000).toLocaleString('id-ID')}</p>
+                        </div>
+                    `;
+                    if (!notif.isRead) {
+                        const docRef = doc(db, "notifications", notif.id);
+                        batch.update(docRef, { isRead: true });
+                    }
+                });
+                contentHTML += '</div>';
+                await batch.commit();
+            }
+            showModal('Notifikasi', contentHTML, [{ text: 'Tutup', class: 'bg-gray-500 hover:bg-gray-600', action: 'close' }]);
+            feather.replace();
+        }
+
+        async function openCitySelectionModal() {
+            if (citiesCache.length === 0) {
+                const citiesSnap = await getDocs(query(collection(db, 'cities'), orderBy('name')));
+                citiesCache = citiesSnap.docs.map(doc => doc.data().name);
+            }
+
+             const nusantaraButton = `
+        <button data-action="set-user-city" data-city="Nusantara" class="w-full text-left p-3 rounded-lg transition-colors ${currentUserProfile.currentCity === 'Nusantara' ? 'bg-gray-800 text-white' : 'bg-gray-100 hover:bg-gray-200'}">
+            <i data-feather="globe" class="inline-block w-4 h-4 mr-2"></i>
+            Nusantara (Global)
+        </button>
+    `;
+
+            const cityButtons = citiesCache.map(city => `
+                <button data-action="set-user-city" data-city="${city}" class="w-full text-left p-3 rounded-lg transition-colors ${currentUserProfile.currentCity === city ? 'bg-gray-800 text-white' : 'bg-gray-100 hover:bg-gray-200'}">
+                    ${city}
+                </button>
+            `).join('');
+
+            const content = `<div class="space-y-2 max-h-80 overflow-y-auto">${nusantaraButton}${cityButtons}</div>`;
+            showModal('Pilih Lokasi Online', content);
+        }
+
+        async function setUserCity(city) {
+            if (!city) return;
+            try {
+                const userRef = doc(db, "users", currentUser.uid);
+                await updateDoc(userRef, { currentCity: city });
+                currentUserProfile.currentCity = city;
+                closeModal();
+                showToast(`Lokasi diubah ke ${city}`, 'map-pin');
+                showPage('timeline', {}, true);
+                showPage('coffee-shop', {}, true);
+            } catch (error) {
+                console.error("Error updating user city:", error);
+                showToast('Gagal mengubah lokasi.', 'alert-circle');
+            }
+        }
+        
+        function openChangeAvatarModal() {
+            const content = `
+                <p class="text-sm text-gray-600 mb-2">
+                    Masukin URL gambar baru buat ganti foto profil.
+                </p>
+                <input type="url" id="avatar-url-input" class="w-full bg-gray-100 border border-gray-300 p-2 rounded-md" placeholder="https://..." value="${currentUserProfile.avatar || ''}">
+                <p class="text-xs text-gray-500 mt-3 bg-yellow-100 p-2 rounded-md">
+                    <b>Info:</b> Maaf, buat sekarang ganti foto profil cuma bisa lewat komputer biar URL gambarnya valid. Maklum, developernya belum sultan.
+                </p>
+            `;
+            showModal('Ganti Foto Profil', content, [
+                { text: 'Batal', class: 'bg-gray-500 hover:bg-gray-600', action: 'close' },
+                { text: 'Simpan', class: 'bg-gray-800 hover:bg-black', action: (btn) => updateAvatar(btn) }
+            ]);
+        }
+
+        async function updateAvatar(button) {
+            const urlInput = document.getElementById('avatar-url-input');
+            const newUrl = urlInput.value.trim();
+            if (!newUrl) {
+                showToast('URL gak boleh kosong.', 'alert-circle');
+                return;
+            }
+            try {
+                new URL(newUrl); // Simple validation
+            } catch (error) {
+                showToast('URL gambar tidak valid. Coba lagi.', 'alert-circle');
+                return;
+            }
+        
+            const originalContent = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = `<i data-feather="loader" class="animate-spin mx-auto"></i>`;
+            feather.replace();
+        
+            try {
+                await updateDoc(doc(db, "users", currentUser.uid), { avatar: newUrl });
+                await updateProfile(auth.currentUser, { photoURL: newUrl });
+        
+                // BARIS BARU UNTUK MEMPERBARUI CACHE
+                if (userProfilesCache[currentUser.uid]) {
+                    userProfilesCache[currentUser.uid].avatar = newUrl;
+                }
+        
+                closeModal();
+                showToast('Asek profil berhasil diperbarui!', 'check-circle');
+            } catch (error) {
+                console.error("Error updating avatar:", error);
+                showToast('Gagal update foto profil.', 'alert-circle');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalContent;
+            }
+        }
+        
+        async function openPromoteShopModal(shopId) {
+            const content = `
+                <p class="text-sm text-gray-600 mb-4">
+                    Pilih jenis promosi buat kedaimu.
+                </p>
+                <p class="text-xs text-gray-500 mb-2">Saldumu: ${currentUserProfile.balance} biji</p>
+                <div class="space-y-3">
+                    <div class="border p-3 rounded-lg bg-gray-50">
+                        <h4 class="font-semibold text-gray-800">Sundul Kedai</h4>
+                        <p class="text-xs text-gray-500 mb-2">Posisikan kedai di urutan #1 di halaman Kedai Kopi selama 24 jam.</p>
+                        <button data-action="execute-bump-promotion" data-shop-id="${shopId}" data-cost="100" class="w-full bg-gray-800 text-white font-semibold p-2 rounded-lg text-sm hover:bg-black transition-colors">
+                            Bayar 100 Biji Kopi
+                        </button>
+                    </div>
+                    <div class="border p-3 rounded-lg bg-gray-50">
+                        <h4 class="font-semibold text-gray-800">Promosi di Timeline</h4>
+                        <p class="text-xs text-gray-500 mb-2">Bikin postingan promosi yang muncul di timeline semua pengguna.</p>
+                        <button data-action="execute-timeline-promotion" data-shop-id="${shopId}" data-cost="250" class="w-full bg-gray-800 text-white font-semibold p-2 rounded-lg text-sm hover:bg-black transition-colors">
+                            Bayar 250 Biji Kopi
+                        </button>
+                    </div>
+                </div>
+            `;
+            showModal('Pilih Jenis Promosi', content);
+        }
+
+        async function executeBumpShopPromotion(shopId, cost, button) {
+            if (currentUserProfile.balance < cost) {
+                showToast("Saldo biji kopi gak cukup.", 'alert-circle');
+                return;
+            }
+
+            const originalContent = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = `<i data-feather="loader" class="animate-spin mx-auto"></i>`;
+            feather.replace();
+
+             try {
+                const userRef = doc(db, "users", currentUser.uid);
+                const shopRef = doc(db, "coffeeShops", shopId);
+
+                const promotionEndDate = new Date();
+                promotionEndDate.setDate(promotionEndDate.getDate() + 1);
+
+                await runTransaction(db, async (transaction) => {
+                    const userDoc = await transaction.get(userRef);
+                    if (!userDoc.exists() || userDoc.data().balance < cost) {
+                        throw "Saldo tidak mencukupi.";
+                    }
+                    
+                    transaction.update(userRef, { balance: increment(-cost) });
+                    transaction.update(shopRef, { promotedUntil: promotionEndDate });
+                });
+
+                closeModal();
+                showToast(`Promosi Sundul Kedai berhasil!`, 'check-circle');
+                showPage('coffee-shop', {}, true);
+            } catch (error) {
+                console.error("Error promoting shop:", error);
+                showToast("Gagal mempromosikan. Coba lagi.", 'alert-circle');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalContent;
+            }
+        }
+        
+        async function executeTimelinePromotion(shopId, cost, button) {
+            if (currentUserProfile.balance < cost) {
+                showToast("Saldo biji kopi gak cukup.", 'alert-circle');
+                return;
+            }
+
+            const originalContent = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = `<i data-feather="loader" class="animate-spin mx-auto"></i>`;
+            feather.replace();
+
+            const shopRef = doc(db, "coffeeShops", shopId);
+            const userRef = doc(db, "users", currentUser.uid);
+
+            try {
+                const shopSnap = await getDoc(shopRef);
+                if (!shopSnap.exists()) {
+                    throw new Error("Kedai tidak ditemukan.");
+                }
+                const shop = shopSnap.data();
+
+                await runTransaction(db, async (transaction) => {
+                    const userDoc = await transaction.get(userRef);
+                    if (!userDoc.exists() || userDoc.data().balance < cost) {
+                        throw "Saldo gak cukup.";
+                    }
+                    transaction.update(userRef, { balance: increment(-cost) });
+                });
+
+                await addDoc(collection(db, "posts"), {
+                    authorId: currentUser.uid,
+                    content: `Ayo mampir ke ${shop.name}! Tempat ngopi asik di ${shop.address}.`,
+                    type: 'promotion',
+                    promotedShopId: shopId,
+                    createdAt: serverTimestamp(),
+                    city: shop.city || "Nusantara",
+                    likes: [],
+                    tips: [],
+                    commentCount: 0,
+                    viewedBy: []
+                });
+
+                closeModal();
+                showToast(`Postingan promosi berhasil dibuat!`, 'check-circle');
+                showPage('timeline', {}, true);
+
+            } catch (error) {
+                console.error("Error creating timeline promotion:", error);
+                showToast("Gagal membuat promosi. Coba lagi.", 'alert-circle');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = originalContent;
+            }
+        }
+
+        async function goToPromotedShop(shopId, postId) {
+            if (currentUser && postId) {
+                const postRef = doc(db, "posts", postId);
+                try {
+                    await updateDoc(postRef, {
+                        viewedBy: arrayUnion(currentUser.uid)
+                    });
+                } catch (error) {
+                    console.error("Error logging promotion view:", error);
+                }
+            }
+            showPage('kedai-detail', { shopId: shopId });
+        }
+
+        async function openPromotionViewersModal(postId) {
+            const postRef = doc(db, "posts", postId);
+            const postSnap = await getDoc(postRef);
+            if (!postSnap.exists()) {
+                showToast("Postingan promosi tidak ditemukan.", "alert-circle");
+                return;
+            }
+            const post = postSnap.data();
+            const viewers = post.viewedBy || [];
+
+            if (viewers.length === 0) {
+                showToast("Iklan ini belum dilihat siapa-siapa.", "info");
+                return;
+            }
+
+            const viewerIds = [...new Set(viewers)];
+            const profiles = await fetchMultipleUserProfiles(viewerIds);
+
+            const viewersHTML = viewerIds.map(userId => {
+                const profile = profiles[userId];
+                if (!profile) return '';
+                const avatarHTML = profile.avatar
+                    ? `<img src="${profile.avatar}" alt="${profile.name}" class="w-8 h-8 rounded-full object-cover bg-gray-200">`
+                    : `<div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center"><i data-feather="user" class="w-5 h-5 text-gray-500"></i></div>`;
+
+                return `
+                    <button data-action="go-to-page" data-page="profile" data-param='{"userId": "${userId}"}' class="w-full flex items-center gap-3 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        ${avatarHTML}
+                        <span class="font-semibold">${profile.name}</span>
+                    </button>
+                `;
+            }).join('');
+
+            showModal('Dilihat Oleh', `<div class="space-y-2 max-h-60 overflow-y-auto">${viewersHTML}</div>`);
+            feather.replace();
+        }
+    </script>
+</body>
+</html>
